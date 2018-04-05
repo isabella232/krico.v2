@@ -1,0 +1,7 @@
+*.pyc
+*.rej
+
+build/
+dist/
+
+*.egg*

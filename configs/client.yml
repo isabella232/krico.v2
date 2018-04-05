@@ -1,0 +1,2 @@
+# endpoint for connecting to the KRICO API
+endpoint: http://127.0.0.1:5000/krico/v0.1
