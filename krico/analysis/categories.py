@@ -1,5 +1,3 @@
-import krico.analysis.predictor.instance
-
 import krico.core.configuration
 import krico.core.logger
 

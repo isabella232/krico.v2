@@ -3,8 +3,7 @@ import sys
 import krico.core.commander
 import krico.core.configuration
 import krico.core.logger
-
-import api
+import krico.client.api
 
 _configuration = krico.core.configuration.root
 _logger = krico.core.logger.get(__name__)
@@ -13,13 +12,13 @@ _logger = krico.core.logger.get(__name__)
 class _Commander(krico.core.commander.CommandDispatcher):
     @classmethod
     def test_classify(cls):
-        print api.default.classify(
+        print krico.client.api.default.classify(
             instance_id='phase-3-science-hpcc-00023'
         )
 
     @classmethod
     def test_predict(cls):
-        print api.default.predict_load(
+        print krico.client.api.default.predict_load(
             image='bigdata-hadoop-wordcount',
             category='bigdata',
             parameters={

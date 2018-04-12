@@ -4,6 +4,7 @@ import krico.core.configuration
 import krico.core.database
 import krico.core.exception
 import krico.core.logger
+import krico.core.lexicon
 import krico.analysis.categories
 
 __author__ = 'porzech'

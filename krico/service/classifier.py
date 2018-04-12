@@ -1,6 +1,7 @@
 import flask
 
 import krico.analysis.classifier
+import krico.analysis.categories
 
 import krico.core.configuration
 import krico.core.database

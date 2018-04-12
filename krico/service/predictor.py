@@ -8,6 +8,7 @@ import krico.core.logger
 
 import krico.analysis.predictor.requirements
 
+import krico.service.aggregates
 import krico.service.response
 
 _logger = krico.core.logger.get(__name__)

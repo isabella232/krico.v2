@@ -1,6 +1,7 @@
 import krico.core.configuration
 import krico.core.exception
 import krico.core.logger
+import krico.core.database
 
 __author__ = 'porzech'
 

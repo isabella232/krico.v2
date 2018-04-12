@@ -2,22 +2,20 @@ import os
 import pickle
 import pymongo.mongo_client
 
-import attribute
-import lazy
-import lexicon
-import logger
-import sys
-
+import krico.core.attribute
+import krico.core.lazy
+import krico.core.lexicon
+import krico.core.logger
 import krico.core.configuration
 
-_logger = logger.get('krico.core.database')
+_logger = krico.core.logger.get('krico.core.database')
 _configuration = krico.core.configuration.root
 
 
 class DataObject(object):
     def __init__(self):
         object.__init__(self)
-        self._dao = lexicon.Lexicon()
+        self._dao = krico.core.lexicon.Lexicon()
 
     def dump(self):
         dictionary = self._dao.dictionary()
@@ -30,7 +28,7 @@ class DataObject(object):
             del dictionary['_id']
 
         DataObject._load_transform(dictionary)
-        self._dao = lexicon.Lexicon(dictionary)
+        self._dao = krico.core.lexicon.Lexicon(dictionary)
 
     @staticmethod
     def _dump_transform(dictionary):
@@ -72,9 +70,9 @@ class BinaryObjectWrapper(BinaryObject):
         return self.__data
 
 
-class _MongoProxy(attribute.AttributeWrapper):
+class _MongoProxy(krico.core.attribute.AttributeWrapper):
     def __init__(self, host, port):
-        attribute.AttributeWrapper.__init__(self)
+        krico.core.attribute.AttributeWrapper.__init__(self)
         self.__host = host
         self.__port = port
         self.__connection = None
@@ -109,9 +107,9 @@ class _MongoProxy(attribute.AttributeWrapper):
         return self.__connection
 
 
-class _DatabaseProxy(attribute.AttributeWrapper):
+class _DatabaseProxy(krico.core.attribute.AttributeWrapper):
     def __init__(self, mongo_proxy, database_name):
-        attribute.AttributeWrapper.__init__(self)
+        krico.core.attribute.AttributeWrapper.__init__(self)
         self.__mongo_proxy = mongo_proxy
         self.__database_name = database_name
 
@@ -222,7 +220,7 @@ class _CollectionProxy(object):
 
         _CollectionProxy._load_transform(document)
 
-        return lexicon.Lexicon(document)
+        return krico.core.lexicon.Lexicon(document)
 
     @staticmethod
     def _create_document(data_object):
@@ -253,9 +251,9 @@ class _CollectionProxy(object):
 
 
 # TODO refactor this in case of problems with DB connection
-class MongoProxyCache(lazy.Cache):
+class MongoProxyCache(krico.core.lazy.Cache):
     def __init__(self):
-        lazy.Cache.__init__(self)
+        krico.core.lazy.Cache.__init__(self)
 
     def _construct(self, item):
         host, port = item

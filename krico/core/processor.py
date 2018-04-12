@@ -1,12 +1,12 @@
 import multiprocessing
 
-import logger
-import configuration
+import krico.core.logger
+import krico.core.configuration
 
 __author__ = 'tziol'
 
-_logger = logger.get('krico.core.processor')
-_configuration = configuration.root
+_logger = krico.core.logger.get('krico.core.processor')
+_configuration = krico.core.configuration.root
 
 
 def process(data, functor):

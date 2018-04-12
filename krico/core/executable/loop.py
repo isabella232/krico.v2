@@ -8,7 +8,7 @@ import krico.core.timestamp
 import krico.core.configuration
 import krico.core.logger
 
-import interrupt
+import krico.core.executable.interrupt
 
 _configuration = krico.core.configuration.root
 _logger = krico.core.logger.get(__name__)
@@ -39,7 +39,7 @@ class Loop(object):
                 if now < deadline:
                     time.sleep((deadline - now).total_seconds())
 
-        except interrupt.TerminateInterrupt:
+        except krico.core.executable.interrupt.TerminateInterrupt:
             _logger.info('Termination requested.')
             raise
 

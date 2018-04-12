@@ -5,7 +5,6 @@ import yaml
 
 import krico.core.lexicon
 import krico.core.trait
-
 import krico.core.attribute
 
 

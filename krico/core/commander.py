@@ -1,10 +1,10 @@
 __author__ = 'tziol'
 
-import logger
-import configuration
+import krico.core.logger
+import krico.core.configuration
 
-_logger = logger.get('krico.core.commander')
-_configuration = configuration.root
+_logger = krico.core.logger.get('krico.core.commander')
+_configuration = krico.core.configuration.root
 
 
 class CommandDispatcher(object):

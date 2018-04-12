@@ -7,10 +7,12 @@ import krico.core.configuration
 import krico.core.logger
 import krico.core.executable.daemon
 
+import krico.analysis.classifier
+import krico.analysis.predictor.refresh
+
 import krico.service.classifier
 import krico.service.predictor
-
-import dataprovider
+import krico.service.dataprovider
 
 _logger = krico.core.logger.get(__name__)
 _configuration = krico.core.configuration.root
@@ -37,7 +39,7 @@ class KricoView(flask_classy.FlaskView):
 
     @flask_classy.route('/workloads', methods=['GET'])
     def get_all_workloads(self):
-        return dataprovider.get_all_workloads()
+        return krico.service.dataprovider.get_all_workloads()
 
     @flask_classy.route('/refresh-classifier', methods=['POST'])
     def refresh_classifier(self):

@@ -8,9 +8,9 @@ import krico.core.exception
 import krico.core.logger
 import krico.core.timestamp
 
-import launcher
-import process
-import interrupt
+import krico.core.executable.launcher
+import krico.core.executable.process
+import krico.core.executable.interrupt
 
 _configuration = krico.core.configuration.root
 _logger = krico.core.logger.get(__name__)
@@ -30,9 +30,9 @@ class DaemonDispatcher(krico.core.commander.CommandDispatcher):
         else:
             pid_file_path = None
             try:
-                launcher.launch(cls._name)  # launching into the background void
+                krico.core.executable.launcher.launch(cls._name)  # launching into the background void
 
-                interrupt.attach()
+                krico.core.executable.interrupt.attach()
 
                 pid_directory = _configuration.core.environment.resources
                 if not os.path.exists(pid_directory):
@@ -48,7 +48,7 @@ class DaemonDispatcher(krico.core.commander.CommandDispatcher):
 
                 cls._execute()
 
-            except interrupt.TerminateInterrupt:
+            except krico.core.executable.interrupt.TerminateInterrupt:
                 _logger.info('Daemon termination requested.')
 
             except:
@@ -60,7 +60,7 @@ class DaemonDispatcher(krico.core.commander.CommandDispatcher):
                     if pid_file_path:
                         os.remove(pid_file_path)
 
-                    interrupt.detach()
+                        krico.core.executable.interrupt.detach()
 
                 except OSError as ex:
                     _logger.error('Error occured during daemon termination: {}'.format(ex))
@@ -73,7 +73,7 @@ class DaemonDispatcher(krico.core.commander.CommandDispatcher):
             _logger.warn('Daemon not running, cannot stop.')
 
         else:
-            process.terminate([running_pid], 10.0)
+            krico.core.executable.process.terminate([running_pid], 10.0)
             _logger.info('Daemon process terminated.')
 
     @classmethod
@@ -104,7 +104,7 @@ class DaemonDispatcher(krico.core.commander.CommandDispatcher):
                 existing_pid = int(pid_file.read())
                 _logger.debug('Found existing PID in file: {}'.format(existing_pid))
 
-                if process.is_alive(existing_pid):
+                if krico.core.executable.process.is_alive(existing_pid):
                     _logger.debug('Daemon already running as process {}.'.format(existing_pid))
                     _logger.debug('My PID is {}.'.format(os.getpid()))
                     return existing_pid
