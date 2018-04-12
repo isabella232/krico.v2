@@ -49,6 +49,10 @@ class KricoView(flask_classy.FlaskView):
     def refresh_predictor(self):
         return self._request(krico.analysis.predictor.refresh.run)
 
+    @flask_classy.route('/refresh-instances', methods=['POST'])
+    def refresh_instances(self):
+        return self._request(krico.service.instances.refresh)
+
 
 class RestApiWorker(multiprocessing.Process):
     def __init__(self):
