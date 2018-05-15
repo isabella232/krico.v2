@@ -11,6 +11,7 @@ import krico.core.configuration
 import krico.core.logger
 
 import krico.core.database
+import krico.core.exception
 import krico.analysis.classifier
 import krico.analysis.predictor.refresh
 
@@ -77,6 +78,15 @@ class ApiWorker(Thread):
             self.server.stop(0)
             self._logger.info('ApiWorker is stopped')
 
-    def terminate(self):
-        self._logger.info('ApiWorker is stopped')
-        self.server.stop(0)
+
+if __name__ == '__main__':
+    try:
+        krico.core.database.connect()
+    except krico.core.exception.Error:
+        sys.exit()
+
+    api = ApiWorker()
+    api.start()
+
+    while True:
+        time.sleep(_ONE_DAY_IN_SECONDS)
