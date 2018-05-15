@@ -6,3 +6,4 @@ theanets
 sklearn
 flask
 flask_classy
+grpcio
