@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-cp -R configs/. ~/Documents/
+cp -R configs/. /etc/krico
