@@ -9,16 +9,13 @@ from krico.api.proto import api_pb2 as api_messages, api_pb2_grpc as api_service
 
 import krico.core.configuration
 import krico.core.logger
-
-import krico.core.database
+import krico.database
 import krico.core.exception
-import krico.analysis.classifier
-import krico.analysis.predictor.refresh
 
 _configuration = krico.core.configuration.root
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
-_LOGGER_NAME = 'gRPC API'
+_logger = krico.core.logger.get('krico.service')
 
 
 class Api(api_service.ApiServicer):
@@ -52,8 +49,7 @@ class Api(api_service.ApiServicer):
 class ApiWorker(Thread):
     def __init__(self):
         super(ApiWorker, self).__init__()
-        self._logger = krico.core.logger.get(_LOGGER_NAME)
-        self._logger.info('Initializing ApiWorker')
+        _logger.info('Initializing ApiWorker')
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         api_service.add_ApiServicer_to_server(Api(), self.server)
         self.server.add_insecure_port('{0}:{1}'.format(
@@ -63,25 +59,25 @@ class ApiWorker(Thread):
 
     def _signal_handler(self, signal, frame):
         self.server.stop(0)
-        self._logger.info('ApiWorker is stopped')
+        _logger.info('ApiWorker is stopped')
         sys.exit(0)
 
     def run(self):
         try:
             self.server.start()
-            self._logger.info('Listening on {0}:{1}'.format(
+            _logger.info('Listening on {0}:{1}'.format(
                 _configuration.service.api.host, _configuration.service.api.port))
             signal.pause()
 
         except Exception as e:
-            self._logger.error(e)
+            _logger.error(e)
             self.server.stop(0)
-            self._logger.info('ApiWorker is stopped')
+            _logger.info('ApiWorker is stopped')
 
 
 if __name__ == '__main__':
     try:
-        krico.core.database.connect()
+        krico.database.connect()
     except krico.core.exception.Error:
         sys.exit()
 
