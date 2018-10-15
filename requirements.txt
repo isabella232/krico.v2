@@ -1,9 +1,7 @@
 PyYAML
-pymongo
 numpy
-scipy
-theanets
-sklearn
-flask
-flask_classy
 grpcio
+cassandra-driver
+pytest
+mock
+keras

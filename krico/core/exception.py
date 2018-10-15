@@ -11,4 +11,14 @@ class Error(RuntimeError):
 
 class NotFoundError(Error):
     def __init__(self, message):
-        Error.__init__(self, 'Object {} not found.'.format(message))
+        Error.__init__(self, '{}: {}'.format(self.__repr__(), message))
+
+
+class NotEnoughResourcesError(Error):
+    def __init__(self, message):
+        Error.__init__(self, '{}: {}'.format(self.__repr__(), message))
+
+
+class DatabaseConnectionError(Error):
+    def __init__(self, message):
+        Error.__init__(self, '{}: {}'.format(self.__repr__(), message))
