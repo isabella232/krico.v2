@@ -1,4 +1,9 @@
-DROP TABLE IF EXISTS krico.classifier_instances;
-DROP TABLE IF EXISTS krico.predictor_instances;
-DROP TYPE IF EXISTS krico.host_aggregate;
+DROP TABLE IF exists krico.host_aggregate;
+DROP TABLE IF exists krico.image;
+DROP TABLE IF EXISTS krico.classifier_instance;
+DROP TABLE IF EXISTS krico.classifier_statistic;
+DROP TABLE IF EXISTS krico.classifier_network;
+DROP TABLE IF exists krico.predictor_instance;
+DROP TABLE IF exists krico.predictor_network;
+DROP TYPE IF EXISTS krico.host;
 DROP TYPE IF EXISTS krico.flavor;

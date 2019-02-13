@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-cp -R configs/. /etc/krico
+cp config.yml /etc/krico
+

@@ -1,40 +1,53 @@
-from concurrent import futures
-from threading import Thread
-import time
-import grpc
+"""Communication module."""
+
 import signal
+
 import sys
 
-from krico.api.proto import api_pb2 as api_messages, api_pb2_grpc as api_service
+import time
 
-import krico.core.configuration
+from concurrent import futures
+
+from threading import Thread
+
+import grpc
+
+import krico.analysis.classifier
+import krico.analysis.predictor
+import krico.core
+import krico.core.exception
 import krico.core.logger
 import krico.database
-import krico.core.exception
 
-_configuration = krico.core.configuration.root
+from krico.api.proto import api_pb2 as api_messages
+from krico.api.proto import api_pb2_grpc as api_service
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
-_logger = krico.core.logger.get('krico.service')
+_configuration = krico.core.configuration['api']
+_logger = krico.core.logger.get('krico.api')
 
 
 class Api(api_service.ApiServicer):
-    # TODO: Implementation
     def Classify(self, request, context):
-        classified_as = None
+        classified_as = krico.analysis.classifier.classify(request.instance_id)
         return api_messages.ClassifyResponse(classified_as=classified_as)
 
-    # TODO: Implementation
     def Predict(self, request, context):
-        requirements = None
+        requirements = krico.analysis.predictor.predict(
+            category=request.category,
+            image=request.image,
+            parameters=request.parameters,
+            configuration_id=request.configuration_id,
+            allocation_mode=request.allocation
+        )
         return api_messages.PredictResponse(requirements=requirements)
 
-    # TODO: Implementation
     def RefreshClassifier(self, request, context):
+        krico.analysis.classifier.refresh()
         return api_messages.RefreshClassifierResponse()
 
-    # TODO: Implementation
     def RefreshPredictor(self, request, context):
+        krico.analysis.predictor.refresh()
         return api_messages.RefreshPredictorResponse()
 
     # TODO: Implementation
@@ -42,8 +55,8 @@ class Api(api_service.ApiServicer):
         return api_messages.RefreshInstancesResponse()
 
     def WorkloadsCategories(self, request, context):
-        workloads_categories = _configuration.dictionary()['analysis']['workloads']['categories']
-        return api_messages.WorkloadsCategoriesResponse(workloads_categories=workloads_categories)
+        return api_messages.WorkloadsCategoriesResponse(
+            workloads_categories=_configuration['workloads']['categories'])
 
 
 class ApiWorker(Thread):
@@ -53,7 +66,7 @@ class ApiWorker(Thread):
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         api_service.add_ApiServicer_to_server(Api(), self.server)
         self.server.add_insecure_port('{0}:{1}'.format(
-            _configuration.service.api.host, _configuration.service.api.port))
+            _configuration['host'], _configuration['port']))
         self.daemon = True
         signal.signal(signal.SIGINT, self._signal_handler)
 
@@ -66,7 +79,7 @@ class ApiWorker(Thread):
         try:
             self.server.start()
             _logger.info('Listening on {0}:{1}'.format(
-                _configuration.service.api.host, _configuration.service.api.port))
+                _configuration['host'], _configuration['port']))
             signal.pause()
 
         except Exception as e:
