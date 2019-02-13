@@ -23,17 +23,11 @@ class TestEnoughSamples(object):
 
 class TestClassifier(object):
 
-    def test_if_model_is_created_after_object_initialization(self):
-        assert krico.analysis.classifier._Classifier('configuration_id').model
+    def test_if_model_is_correct(self):
+        classifier = krico.analysis.classifier._Classifier('configuration_id')
 
-    def test_if_model_is_compiled_after_object_initialization(self):
-        assert krico.analysis.classifier._Classifier(
-            'configuration_id').model.built is True
-
-    def test_if_classifier_have_configuration_id(self):
-        assert krico.analysis.classifier._Classifier(
-            'configuration_id').configuration_id == "configuration_id"
-
-    def test_if_classifier_have_x_maxima(self):
-        assert krico.analysis.classifier._Classifier(
-            'configuration_id').x_maxima == []
+        assert classifier.model
+        assert classifier.model.built is True
+        assert classifier.configuration_id is "configuration_id"
+        assert isinstance(classifier.x_maxima, list)
+        assert len(classifier.model.layers) == 3
