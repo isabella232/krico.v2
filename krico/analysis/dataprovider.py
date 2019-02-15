@@ -55,7 +55,7 @@ def get_host_aggregates(configuration_id=None):
 def get_images_names(category):
     """Return names of images in specific category.
 
-    Images was running on cluster.
+    Images were running on cluster.
 
     Keyword arguments:
     ------------------
