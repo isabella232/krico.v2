@@ -1,21 +1,16 @@
 import logging
 import logging.config
-
 import sys
 
-import krico.core
+from krico.core import configuration
 
-_configuration = krico.core.configuration['logger']
-
-
-def get(name):
-    return logging.getLogger(name)
+config = configuration['logger']
 
 
 def initialize():
-    preset = _configuration['preset']
-    logger_configuration = _configuration['defaults'].copy()
-    preset_configuration = _configuration['presets'][preset].copy()
+    preset = config['preset']
+    logger_configuration = config['defaults'].copy()
+    preset_configuration = config['presets'][preset].copy()
     logger_configuration.update(preset_configuration)
 
     try:
@@ -26,8 +21,5 @@ def initialize():
         logging.basicConfig(
             level=logging.DEBUG, stream=sys.stdout, format=default_format)
 
-    _logger = get('krico.core.logger')
+    _logger = logging.getLogger(__name__)
     _logger.info('Logging initialized.')
-
-
-initialize()

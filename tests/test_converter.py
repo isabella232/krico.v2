@@ -5,7 +5,7 @@ import krico.analysis.converter
 import krico.core.exception
 
 
-@mock.patch.dict(krico.analysis.converter._configuration,
+@mock.patch.dict(krico.analysis.converter.config,
                  {
                      'flavor': {
                          'free': {
@@ -83,7 +83,7 @@ class TestPreparePredictionForHostAggregate(object):
         assert prediction['flavor']['disk'] == expected['disk']
 
 
-@mock.patch.dict(krico.analysis.converter._configuration,
+@mock.patch.dict(krico.analysis.converter.config,
                  {
                      'threshold': 3.0,
                      'threshold_low': 3,
@@ -266,7 +266,7 @@ class TestPrepareMeanSamples(object):
             assert mean_sample[sample] == expected[sample]
 
 
-@mock.patch.dict(krico.analysis.converter._configuration,
+@mock.patch.dict(krico.analysis.converter.config,
                  {
                      'threshold': 3.0,
                      'threshold_low': 3,

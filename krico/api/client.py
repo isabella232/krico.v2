@@ -43,3 +43,12 @@ class ApiClient(object):
         workloads_categories = self.stub.WorkloadsCategories(
             api_messages.WorkloadsCategoriesRequest())
         return workloads_categories
+
+
+# TODO: Move to other location and implement client
+def main():
+    raise NotImplementedError
+
+
+if __name__ == '__main__':
+    main()

@@ -1,8 +1,4 @@
 """Database module."""
-import collections
-
-import numpy
-
 from cassandra.cqlengine import columns
 from cassandra.cqlengine import connection
 from cassandra.cqlengine import CQLEngineException
@@ -12,20 +8,19 @@ from cassandra.cqlengine.management import sync_table
 from cassandra.cqlengine.models import Model
 from cassandra.cqlengine.usertype import UserType
 
+import collections
+import numpy
 import datetime
-
 import json
-
+import logging
 import uuid
 
-from krico.core import CATEGORIES
+from krico.core import configuration, CATEGORIES
 
-import krico.core
-import krico.core.exception
-import krico.core.logger
+from krico.core.exception import Error, DatabaseConnectionError
 
-_logger = krico.core.logger.get(__name__)
-_configuration = krico.core.configuration['database']
+log = logging.getLogger(__name__)
+config = configuration['database']
 
 
 class Host(UserType):
@@ -298,7 +293,7 @@ class PredictorInstance(Model):
                 ).allow_filtering()
 
         else:
-            raise krico.core.exception.Error(
+            raise Error(
                 "Category is required for this function!"
             )
 
@@ -363,12 +358,12 @@ def connect():
     """Connect to Cassandra database."""
 
     try:
-        connection.setup([_configuration['host']], _configuration['keyspace'])
-        _logger.info('Connected to Cassandra database!')
+        connection.setup([config['host']], config['keyspace'])
+        log.info('Connected to Cassandra database!')
     except CQLEngineException:
-        raise krico.core.exception.DatabaseConnectionError(
+        raise DatabaseConnectionError(
             'Cannot connect to Cassandra database at {}:{}.'.format(
-                _configuration['host'], _configuration['keyspace']))
+                config['host'], config['keyspace']))
 
 
 def delete_database():
@@ -376,7 +371,7 @@ def delete_database():
 
     if not connection.session:
         connect()
-    drop_keyspace(_configuration['keyspace'])
+    drop_keyspace(config['keyspace'])
 
 
 def fill(classifier_data_path, predictor_data_path):
@@ -391,9 +386,9 @@ def fill(classifier_data_path, predictor_data_path):
             Path to JSON with predictor data."""
 
     connect()
-    drop_keyspace(_configuration['keyspace'])
-    create_keyspace_simple(_configuration['keyspace'],
-                           _configuration['replication_factor'])
+    drop_keyspace(config['keyspace'])
+    create_keyspace_simple(config['keyspace'],
+                           config['replication_factor'])
     sync_table(Image)
     sync_table(HostAggregate)
     sync_table(ClassifierInstance)
@@ -411,14 +406,14 @@ def fill(classifier_data_path, predictor_data_path):
             name=row['name'],
             configuration_id=row['host_aggregate']['configuration_id'],
             parameters=row['parameters'],
-            host_aggregate=krico.database.Host(
+            host_aggregate=Host(
                 disk=row['host_aggregate']['disk'],
                 ram=row['host_aggregate']['ram'],
                 name=row['host_aggregate']['name'],
                 configuration_id=row['host_aggregate']['configuration_id'],
                 cpu=row['host_aggregate']['cpu']
             ),
-            flavor=krico.database.Flavor(
+            flavor=Flavor(
                 vcups=row['flavor']['vcpus'],
                 disk=row['flavor']['disk'],
                 ram=row['flavor']['ram'],
@@ -459,8 +454,3 @@ def fill(classifier_data_path, predictor_data_path):
             image=row['image'],
             category=row['category']
         )
-
-
-if __name__ == '__main__':
-    fill('./models/classifier-instances.json',
-         './models/predictor-instances.json')

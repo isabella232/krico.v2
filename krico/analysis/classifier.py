@@ -1,25 +1,22 @@
 """Workload classification component."""
 
 import collections
-
 import pickle
-
 import uuid
-
 import keras
-
-import krico.analysis.converter
-import krico.analysis.dataprovider
-import krico.core
-import krico.core.exception
-import krico.core.logger
-import krico.database
-
 import numpy
+import logging
+
+from krico.analysis.converter import prepare_mean_sample
+
+from krico.core import configuration, METRICS, CATEGORIES
+
+from krico.database \
+    import ClassifierInstance, MonitorSample, ClassifierNetwork, HostAggregate
 
 
-_logger = krico.core.logger.get(__name__)
-_configuration = krico.core.configuration['classifier']
+log = logging.getLogger(__name__)
+config = configuration['classifier']
 
 
 class _Classifier(object):
@@ -44,9 +41,9 @@ class _Classifier(object):
         self.model.fit(
             x=x,
             y=y,
-            batch_size=_configuration['batch_size'],
+            batch_size=config['batch_size'],
             epochs=epochs,
-            validation_split=_configuration['validation_split']
+            validation_split=config['validation_split']
         )
 
     def predict(self, sample):
@@ -62,8 +59,8 @@ class _Classifier(object):
         return numpy.argmax(self.model.predict(sample))
 
     def _create_model(self):
-        input_size = len(krico.core.METRICS)
-        output_size = len(krico.core.CATEGORIES)
+        input_size = len(METRICS)
+        output_size = len(CATEGORIES)
 
         self.model = keras.Sequential([
             keras.layers.Dense(
@@ -82,7 +79,7 @@ class _Classifier(object):
             optimizer=optimizer,
             metrics=['accuracy']
         )
-        _logger.info('Model compiled')
+        log.info('Model compiled')
 
 
 def classify(instance_id):
@@ -104,49 +101,48 @@ def classify(instance_id):
 
     bigdata
     """
-    instance = krico.database.ClassifierInstance.objects.filter(
+    instance = ClassifierInstance.objects.filter(
         instance_id=instance_id).allow_filtering().first()
 
-    monitor_samples = krico.database.MonitorSample.objects.filter(
+    monitor_samples = MonitorSample.objects.filter(
         instance_id=instance_id.host_aggregate.configuration_id).all()
 
     classifier = _load_classifier(instance.host_aggregate.configuration_id)
 
-    mean_load = krico.analysis.converter.prepare_mean_sample(
-        monitor_samples, krico.core.METRICS)
+    mean_load = prepare_mean_sample(monitor_samples, METRICS)
 
     prediction = classifier.predict(mean_load)
 
-    _logger.info('Category predicted for {} is: {}({})'.format(
+    log.info('Category predicted for {} is: {}({})'.format(
         instance.instance_id,
-        krico.core.CATEGORIES[prediction],
+        CATEGORIES[prediction],
         prediction
     ))
 
-    return krico.core.CATEGORIES[prediction]
+    return CATEGORIES[prediction]
 
 
 def refresh():
     """Refresh all classifier networks."""
-    _logger.info('Refreshing classifiers.')
+    log.info('Refreshing classifiers.')
 
-    for network in krico.database.ClassifierNetwork.all():
+    for network in ClassifierNetwork.all():
         network.delete()
 
-    for host_aggregate in krico.database.HostAggregate.get_host_aggregates():
+    for host_aggregate in HostAggregate.get_host_aggregates():
         if _enough_samples(host_aggregate.configuration_id):
             _create_and_save_classifier(host_aggregate.configuration_id)
 
 
 def _create_and_save_classifier(configuration_id):
 
-    learning_set = krico.database.\
-        ClassifierInstance.get_classifier_learning_set(configuration_id)
+    learning_set = ClassifierInstance.\
+        get_classifier_learning_set(configuration_id)
 
     classifier = _Classifier(configuration_id)
     classifier.train(learning_set)
 
-    krico.database.ClassifierNetwork.create(
+    ClassifierNetwork.create(
         id=uuid.uuid4(),
         configuration_id=configuration_id,
         network=pickle.dumps(classifier)
@@ -154,27 +150,27 @@ def _create_and_save_classifier(configuration_id):
 
 
 def _load_classifier(configuration_id):
-    classifier = krico.database.ClassifierNetwork.objects.filter(
+    classifier = ClassifierNetwork.objects.filter(
         configuration_id=configuration_id
     ).allow_filtering().first()
 
     if not classifier:
-        classifier = krico.database.ClassifierNetwork.objects.filter(
-            configuration_id=_configuration['default_configuration_id']
+        classifier = ClassifierNetwork.objects.filter(
+            configuration_id=config['default_configuration_id']
         ).allow_filtering().first()
 
     return pickle.loads(classifier.network)
 
 
 def _enough_samples(configuration_id):
-    for category in krico.core.CATEGORIES:
+    for category in CATEGORIES:
 
-        sample_count = krico.database.ClassifierInstance.objects.filter(
+        sample_count = ClassifierInstance.objects.filter(
             configuration_id=configuration_id,
             category=category
         ).allow_filtering().count()
 
-        if sample_count < _configuration['minimal_samples']:
+        if sample_count < config['minimal_samples']:
             return False
 
     return True

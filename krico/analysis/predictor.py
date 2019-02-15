@@ -1,26 +1,24 @@
 """Requirements prediction component."""
 
 import collections
-
+from itertools import izip as zip
+import keras
+import numpy
+import logging
 import pickle
-
 import uuid
 
-from itertools import izip as zip
+from krico.analysis.converter import prepare_prediction_for_host_aggregate
 
-import keras
+from krico.core import configuration, PARAMETERS, REQUIREMENTS, CATEGORIES
+from krico.core.exception import NotEnoughResourcesError, NotFoundError
 
-import krico.analysis.converter
-import krico.analysis.dataprovider
-import krico.core
-import krico.core.exception
-import krico.core.logger
-import krico.database
+from krico.database \
+    import PredictorInstance, PredictorNetwork, HostAggregate, Image
 
-import numpy
 
-_logger = krico.core.logger.get(__name__)
-_configuration = krico.core.configuration['predictor']
+log = logging.getLogger(__name__)
+config = configuration['predictor']
 
 
 class _Predictor(object):
@@ -45,8 +43,8 @@ class _Predictor(object):
         self.model.fit(
             x=x,
             y=y,
-            batch_size=_configuration['batch_size'],
-            validation_split=_configuration['validation_split'],
+            batch_size=config['batch_size'],
+            validation_split=config['validation_split'],
             epochs=epochs
         )
 
@@ -62,8 +60,8 @@ class _Predictor(object):
         return self.model.predict(data)[0]
 
     def _create_model(self):
-        input_size = len(krico.core.PARAMETERS[self.category])
-        output_size = len(krico.core.REQUIREMENTS)
+        input_size = len(PARAMETERS[self.category])
+        output_size = len(REQUIREMENTS)
 
         self.model = keras.Sequential([
             keras.layers.Dense(
@@ -76,7 +74,7 @@ class _Predictor(object):
     def _compile_model(self, learning_rate=0.05, momentum=0.9):
         optimizer = keras.optimizers.SGD(learning_rate, momentum)
         self.model.compile(loss='mean_squared_error', optimizer=optimizer)
-        _logger.info('Model compiling...')
+        log.info('Model compiling...')
 
 
 def predict(category, image, parameters,
@@ -136,23 +134,23 @@ def predict(category, image, parameters,
 
     # Predict requirements
     requirements = dict(zip(
-        sorted(_configuration['requirements']),
+        sorted(config['requirements']),
         predictor.predict(parameters)))
 
     # Get back disk because it's needed to prepare OpenStack flavor
     requirements['disk'] = disk
 
-    aggregates = krico.database.HostAggregate.get_host_aggregates(
+    aggregates = HostAggregate.get_host_aggregates(
         configuration_id)
 
     if not aggregates:
-        raise krico.core.exception.NotFoundError('Missing host aggregate')
+        raise NotFoundError('Missing host aggregate')
 
     predictions = []
 
     for aggregate in aggregates:
         prediction = \
-            krico.analysis.converter.prepare_prediction_for_host_aggregate(
+            prepare_prediction_for_host_aggregate(
                 dict(aggregate),
                 requirements,
                 allocation_mode)
@@ -163,19 +161,19 @@ def predict(category, image, parameters,
 
 def refresh():
     """Delete all predictor networks, build new and save it in database."""
-    _logger.info('Refreshing predictors.')
+    log.info('Refreshing predictors.')
 
-    for network in krico.database.PredictorNetwork.all():
+    for network in PredictorNetwork.all():
         network.delete()
 
-    for category in krico.core.CATEGORIES:
+    for category in CATEGORIES:
 
         # First create general predictor for category
         if _enough_samples(category):
             _create_predictor(category)
 
         # Second create specific predictor for image
-        for image in krico.database.Image.get_images_names(category):
+        for image in Image.get_images_names(category):
 
             if _enough_samples(category, image):
                 _create_predictor(category, image)
@@ -183,18 +181,18 @@ def refresh():
 
 def _create_predictor(category, image=None):
 
-    learning_set = krico.database.PredictorInstance.get_predictor_learning_set(
+    learning_set = PredictorInstance.get_predictor_learning_set(
         category, image)
 
     # All predictors include image field, if create general predictor,
     # set this field with default_image.
     if image is None:
-        image = _configuration['default_image']
+        image = config['default_image']
 
     predictor = _Predictor(category, image)
     predictor.train(learning_set)
 
-    krico.database.PredictorNetwork.create(
+    PredictorNetwork.create(
         id=uuid.uuid4(),
         image=image,
         category=category,
@@ -207,7 +205,7 @@ def _create_predictor(category, image=None):
 def _get_predictor(category, image):
 
     # Start with check if there's specific predictor for image
-    image_predictor = krico.database.PredictorNetwork.objects.filter(
+    image_predictor = PredictorNetwork.objects.filter(
         image=image,
         category=category
     ).allow_filtering().first()
@@ -220,8 +218,8 @@ def _get_predictor(category, image):
         return _create_predictor(category, image)
 
     # If not, check if there's general predictor for category
-    category_predictor = krico.database.PredictorNetwork.objects.filter(
-        image=_configuration['default_image'],
+    category_predictor = PredictorNetwork.objects.filter(
+        image=config['default_image'],
         category=category
     ).allow_filtering().first()
 
@@ -233,7 +231,7 @@ def _get_predictor(category, image):
         return _create_predictor(category)
 
     # If not, raise error
-    raise krico.core.exception.NotEnoughResourcesError(
+    raise NotEnoughResourcesError(
         'Cannot prepare predictor for category: {} '
         'image: {}'.format(category, image))
 
@@ -241,14 +239,14 @@ def _get_predictor(category, image):
 def _enough_samples(category, image=None):
 
     if image is None:
-        sample_count = krico.database.PredictorInstance.objects.filter(
+        sample_count = PredictorInstance.objects.filter(
             category=category
         ).allow_filtering().count()
 
     else:
-        sample_count = krico.database.PredictorInstance.objects.filter(
+        sample_count = PredictorInstance.objects.filter(
             category=category,
             image=image
         ).allow_filtering().count()
 
-    return sample_count >= _configuration['minimal_samples']
+    return sample_count >= config['minimal_samples']

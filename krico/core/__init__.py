@@ -1,8 +1,10 @@
 """Core modules."""
 
-import yaml
+from krico.core.exception import NotFoundError
 
-configuration = dict()
+from yaml import load
+
+configuration = {}
 
 # Names of workloads categories.
 CATEGORIES = []
@@ -17,20 +19,39 @@ REQUIREMENTS = []
 METRICS = []
 
 
-def init():
-    with open("/etc/krico/config.yml", 'r') as __config_file:
-        configuration = yaml.load(__config_file)
+def init(config_path):
+    """Loads KRICO configuration.
 
+    Keyword arguments:
+    ------------------
+    config_path : string
+        Path to configuration file."""
+
+    try:
+        with open(config_path, 'r') as config_file:
+            global configuration
+            configuration = load(config_file)
+    except IOError:
+        raise NotFoundError(
+            "Missing config file \"{}\"".format(config_path)
+        )
+
+    global CATEGORIES
     CATEGORIES = sorted([
         category['name']
         for category in configuration['workloads']['categories']
     ])
 
+    global PARAMETERS
     PARAMETERS = {
         category['name']: category['parameters']
         for category in configuration['workloads']['categories']
     }
 
+    global REQUIREMENTS
     REQUIREMENTS = sorted(configuration['predictor']['requirements'])
 
+    global METRICS
     METRICS = sorted(configuration['classifier']['metrics'])
+
+    return configuration

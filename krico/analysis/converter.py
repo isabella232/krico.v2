@@ -1,21 +1,19 @@
 """Data converting component."""
 import math
-
-import krico.analysis.dataprovider
-import krico.core
-import krico.core.exception
-import krico.core.logger
-
 import numpy
+import logging
 
-_logger = krico.core.logger.get(__name__)
-_configuration = krico.core.configuration['converter']
+from krico.core import configuration
+from krico.core.exception import NotEnoughResourcesError
+
+log = logging.getLogger(__name__)
+config = configuration['converter']
 
 
 def prepare_prediction_for_host_aggregate(
         aggregate,
         requirements,
-        allocation=_configuration['allocation_mode']['shared']):
+        allocation=config['allocation_mode']['shared']):
     """Prepare prediction for host aggregate.
 
     Keyword arguments:
@@ -54,17 +52,17 @@ def prepare_prediction_for_host_aggregate(
         cpu threads required to run workload.
     """
     flavor_vcpus_max = int(
-        aggregate['cpu']['threads'] * _configuration['flavor']['free']['vcpus']
+        aggregate['cpu']['threads'] * config['flavor']['free']['vcpus']
     )
 
     flavor_ram_max = int(
-        aggregate['ram']['size'] * _configuration['flavor']['free']['ram']
+        aggregate['ram']['size'] * config['flavor']['free']['ram']
     ) * 1024
 
     flavor_disk_max = int(
-        aggregate['disk']['size'] * _configuration['flavor']['free']['disk'])
+        aggregate['disk']['size'] * config['flavor']['free']['disk'])
 
-    if allocation == _configuration['allocation_mode']['shared']:
+    if allocation == config['allocation_mode']['shared']:
         flavor_vcpus = int(math.ceil(requirements['cpu_threads']))
         flavor_ram = int(math.ceil(requirements['ram_size'])) * 1024
         flavor_disk = int(math.ceil(requirements['disk']))
@@ -74,10 +72,10 @@ def prepare_prediction_for_host_aggregate(
                 flavor_disk > flavor_disk_max:
             message = "Cannot launch VM using {} host aggregate."\
                 .format(aggregate['configuration_id'])
-            _logger.warning(message)
-            raise krico.core.exception.NotEnoughResourcesError(message)
+            log.warning(message)
+            raise NotEnoughResourcesError(message)
 
-    elif allocation == _configuration['allocation_mode']['exclusive']:
+    elif allocation == config['allocation_mode']['exclusive']:
         flavor_vcpus = flavor_vcpus_max
         flavor_ram = flavor_ram_max
         flavor_disk = flavor_disk_max
@@ -85,7 +83,7 @@ def prepare_prediction_for_host_aggregate(
     else:
         message = "Cannot prepare prediction. " \
                   "Allocation mode {} is not implemented.".format(allocation)
-        _logger.warning(message)
+        log.warning(message)
         raise NotImplementedError(message)
 
     prediction = dict()
@@ -146,14 +144,14 @@ def _filter_peaks(metrics):
 
     for metric, metric_samples in metrics.items():
         threshold_low = numpy.percentile(
-            metric_samples, _configuration['threshold_low'])
+            metric_samples, config['threshold_low'])
 
-        threshold_low = threshold_low / _configuration['threshold']
+        threshold_low = threshold_low / config['threshold']
 
         threshold_high = numpy.percentile(
-            metric_samples, _configuration['threshold_high'])
+            metric_samples, config['threshold_high'])
 
-        threshold_high = threshold_high * _configuration['threshold']
+        threshold_high = threshold_high * config['threshold']
 
         metrics_filtered[metric] = filter(
             lambda value: threshold_low <= value <= threshold_high,

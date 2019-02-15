@@ -2,7 +2,7 @@ import mock
 import krico.analysis.classifier
 
 
-@mock.patch.dict(krico.analysis.classifier._configuration,
+@mock.patch.dict(krico.analysis.classifier.config,
                  {'minimal_samples': 40})
 class TestEnoughSamples(object):
 
