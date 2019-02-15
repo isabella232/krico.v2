@@ -23,38 +23,116 @@ _configuration = krico.core.configuration['database']
 
 
 class Host(UserType):
-    disk = columns.Map(columns.Text(), columns.Integer())
-    ram = columns.Map(columns.Text(), columns.Integer())
+    """Cassandra user-defined type that represents host aggregate.
+
+    Variables:
+    ------------------
+    name: Name of host aggregate.
+
+    configuration_id: ID of host aggregate.
+
+    cpu: Basic CPU parameters like threads and performance.
+
+    ram: Basic RAM parameters like bandwidth and size.
+
+    disk: Basic Disk parameters like iops and size."""
+
     name = columns.Text()
     configuration_id = columns.Text()
     cpu = columns.Map(columns.Text(), columns.Integer())
+    ram = columns.Map(columns.Text(), columns.Integer())
+    disk = columns.Map(columns.Text(), columns.Integer())
 
 
 class Flavor(UserType):
-    vcups = columns.Integer()
-    disk = columns.Integer()
-    ram = columns.Integer()
+    """Cassandra user-defined type that represents OpenStack flavor.
+
+    Variables:
+    ------------------
+    name: Name of OpenStack flavor.
+
+    vcups: Number of Virtual CPU's.
+
+    ram: Ram size in GBs.
+
+    disk: Disk size in GBs."""
+
     name = columns.Text()
+    vcups = columns.Integer()
+    ram = columns.Integer()
+    disk = columns.Integer()
 
 
 class HostAggregate(Model):
-    configuration_id = columns.Text(primary_key=True)
+    """Cassandra Model that represents host aggregate.
+
+    Variables:
+    ------------------
+    name: Name of host aggregate.
+
+    configuration_id: ID of host aggregate.
+
+    cpu: Basic CPU parameters like threads and performance.
+
+    ram: Basic RAM parameters like bandwidth and size.
+
+    disk: Basic Disk parameters like iops and size."""
+
     name = columns.Text()
+    configuration_id = columns.Text(primary_key=True)
     cpu = columns.Map(columns.Text(), columns.Integer())
     ram = columns.Map(columns.Text(), columns.Integer())
     disk = columns.Map(columns.Text(), columns.Integer())
 
 
 class Image(Model):
+    """Cassandra Model that represents workload image.
+
+    Variables:
+    ------------------
+    image: Name of workload image.
+
+    category: Name of workload category."""
+
     image = columns.Text(primary_key=True)
     category = columns.Text()
 
 
 class ClassifierInstance(Model):
+    """Cassandra Model that represents single collected metrics record.
+
+    Variables:
+    ------------------
+    id: UUID.
+
+    name: Name of OpenStack instance.
+
+    configuration_id: Id of host aggregate.
+
+    category: Name of workload category.
+
+    parameters: Parameters of workload.
+
+    host_aggregate: Information about host aggregate which instance was run on.
+
+    image: Name of workload image.
+
+    host: Name of hypervisor host.
+
+    instance_id: Id of instance.
+
+    load_measured: Collected metrics.
+
+    stop_time: Stop collecting time.
+
+    flavor: Information about flavor which instance was run on.
+
+    start_time: Start collecting time."""
+
     id = columns.UUID(primary_key=True)
-    category = columns.Text()
     name = columns.Text()
     configuration_id = columns.Text()
+    category = columns.Text()
     parameters = columns.Map(columns.Text(), columns.Integer())
     host_aggregate = columns.UserDefinedType(Host)
     image = columns.Text()
@@ -67,21 +145,61 @@ class ClassifierInstance(Model):
 
 
 class ClassifierNetwork(Model):
+    """Cassandra Model that represents classifier neural network.
+
+    Variables:
+    ------------------
+    id: UUID.
+
+    configuration_id: Id of host aggregate.
+
+    network: Neural network model in bytes."""
+
     id = columns.UUID(primary_key=True)
     configuration_id = columns.Text()
     network = columns.Blob()
 
 
 class PredictorInstance(Model):
+    """Cassandra Model that represents single collected metrics record.
+
+    Variables:
+    ------------------
+    id: UUID.
+
+    category: Name of workload category.
+
+    parameters: Parameters of workload.
+
+    image: Name of workload image.
+
+    instance_id: Id of instance.
+
+    requirements: Required resources to run workload."""
+
     id = columns.UUID(primary_key=True)
-    instance_id = columns.Text()
     category = columns.Text()
-    image = columns.Text()
     parameters = columns.Map(columns.Text(), columns.Integer())
+    image = columns.Text()
+    instance_id = columns.Text()
     requirements = columns.Map(columns.Text(), columns.Double())
 
 
 class PredictorNetwork(Model):
+    """Cassandra Model that represents predictor neural network.
+
+    Variables:
+    ------------------
+    id: UUID.
+
+    configuration_id: Id of host aggregate.
+
+    image: Name of workload image.
+
+    category: Name of workload category.
+
+    network: Neural network model in bytes."""
+
     id = columns.UUID(primary_key=True)
     configuration_id = columns.Text()
     image = columns.Text()
@@ -90,6 +208,20 @@ class PredictorNetwork(Model):
 
 
 class MonitorSample(Model):
+    """Cassandra Model that represents collected samples for classification.
+
+    Variables:
+    ------------------
+    id: UUID.
+
+    instance_id: Id of instance.
+
+    configuration_id: Id of host aggregate.
+
+    image: Name of workload image.
+
+    metrics: Collected metrics."""
+
     id = columns.UUID(primary_key=True)
     instance_id = columns.Text()
     configuration_id = columns.Text()
@@ -97,6 +229,8 @@ class MonitorSample(Model):
 
 
 def connect():
+    """Connect to Cassandra database."""
+
     try:
         connection.setup([_configuration['host']], _configuration['keyspace'])
         _logger.info('Connected to Cassandra database!')
@@ -107,12 +241,24 @@ def connect():
 
 
 def delete_database():
+    """Delete Cassandra database."""
+
     if not connection.session:
         connect()
     drop_keyspace(_configuration['keyspace'])
 
 
 def fill(classifier_data_path, predictor_data_path):
+    """Fill Cassandra database with data from JSON
+
+    Keyword arguments:
+    ------------------
+    classifier_data_path: string
+            Path to JSON with classifier data.
+
+    predictor_data_path: string
+            Path to JSON with predictor data."""
+
     connect()
     drop_keyspace(_configuration['keyspace'])
     create_keyspace_simple(_configuration['keyspace'],
