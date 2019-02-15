@@ -62,8 +62,8 @@ class _Predictor(object):
         return self.model.predict(data)[0]
 
     def _create_model(self):
-        input_size = len(krico.analysis.dataprovider.PARAMETERS[self.category])
-        output_size = len(krico.analysis.dataprovider.REQUIREMENTS)
+        input_size = len(krico.core.PARAMETERS[self.category])
+        output_size = len(krico.core.REQUIREMENTS)
 
         self.model = keras.Sequential([
             keras.layers.Dense(
@@ -142,7 +142,7 @@ def predict(category, image, parameters,
     # Get back disk because it's needed to prepare OpenStack flavor
     requirements['disk'] = disk
 
-    aggregates = krico.analysis.dataprovider.get_host_aggregates(
+    aggregates = krico.database.HostAggregate.get_host_aggregates(
         configuration_id)
 
     if not aggregates:
@@ -168,14 +168,14 @@ def refresh():
     for network in krico.database.PredictorNetwork.all():
         network.delete()
 
-    for category in krico.analysis.dataprovider.CATEGORIES:
+    for category in krico.core.CATEGORIES:
 
         # First create general predictor for category
         if _enough_samples(category):
             _create_predictor(category)
 
         # Second create specific predictor for image
-        for image in krico.analysis.dataprovider.get_images_names(category):
+        for image in krico.database.Image.get_images_names(category):
 
             if _enough_samples(category, image):
                 _create_predictor(category, image)
@@ -183,7 +183,7 @@ def refresh():
 
 def _create_predictor(category, image=None):
 
-    learning_set = krico.analysis.dataprovider.get_predictor_learning_set(
+    learning_set = krico.database.PredictorInstance.get_predictor_learning_set(
         category, image)
 
     # All predictors include image field, if create general predictor,

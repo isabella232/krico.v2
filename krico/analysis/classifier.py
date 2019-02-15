@@ -62,8 +62,8 @@ class _Classifier(object):
         return numpy.argmax(self.model.predict(sample))
 
     def _create_model(self):
-        input_size = len(krico.analysis.dataprovider.METRICS)
-        output_size = len(krico.analysis.dataprovider.CATEGORIES)
+        input_size = len(krico.core.METRICS)
+        output_size = len(krico.core.CATEGORIES)
 
         self.model = keras.Sequential([
             keras.layers.Dense(
@@ -82,7 +82,7 @@ class _Classifier(object):
             optimizer=optimizer,
             metrics=['accuracy']
         )
-        _logger.info('Model compiling...')
+        _logger.info('Model compiled')
 
 
 def classify(instance_id):
@@ -113,17 +113,17 @@ def classify(instance_id):
     classifier = _load_classifier(instance.host_aggregate.configuration_id)
 
     mean_load = krico.analysis.converter.prepare_mean_sample(
-        monitor_samples, krico.analysis.dataprovider.METRICS)
+        monitor_samples, krico.core.METRICS)
 
     prediction = classifier.predict(mean_load)
 
     _logger.info('Category predicted for {} is: {}({})'.format(
         instance.instance_id,
-        krico.analysis.dataprovider.CATEGORIES[prediction],
+        krico.core.CATEGORIES[prediction],
         prediction
     ))
 
-    return krico.analysis.dataprovider.CATEGORIES[prediction]
+    return krico.core.CATEGORIES[prediction]
 
 
 def refresh():
@@ -133,15 +133,15 @@ def refresh():
     for network in krico.database.ClassifierNetwork.all():
         network.delete()
 
-    for host_aggregate in krico.analysis.dataprovider.get_host_aggregates():
+    for host_aggregate in krico.database.HostAggregate.get_host_aggregates():
         if _enough_samples(host_aggregate.configuration_id):
             _create_and_save_classifier(host_aggregate.configuration_id)
 
 
 def _create_and_save_classifier(configuration_id):
 
-    learning_set = krico.analysis.dataprovider.get_classifier_learning_set(
-        configuration_id)
+    learning_set = krico.database.\
+        ClassifierInstance.get_classifier_learning_set(configuration_id)
 
     classifier = _Classifier(configuration_id)
     classifier.train(learning_set)
@@ -167,7 +167,7 @@ def _load_classifier(configuration_id):
 
 
 def _enough_samples(configuration_id):
-    for category in krico.analysis.dataprovider.CATEGORIES:
+    for category in krico.core.CATEGORIES:
 
         sample_count = krico.database.ClassifierInstance.objects.filter(
             configuration_id=configuration_id,
