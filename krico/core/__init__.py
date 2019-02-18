@@ -1,5 +1,4 @@
 """Core modules."""
-
 from krico.core.exception import NotFoundError
 
 from yaml import load

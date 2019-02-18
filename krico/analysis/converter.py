@@ -3,17 +3,16 @@ import math
 import numpy
 import logging
 
-from krico.core import configuration
+from krico import core
 from krico.core.exception import NotEnoughResourcesError
 
 log = logging.getLogger(__name__)
-config = configuration['converter']
 
 
 def prepare_prediction_for_host_aggregate(
         aggregate,
         requirements,
-        allocation=config['allocation_mode']['shared']):
+        allocation='shared'):
     """Prepare prediction for host aggregate.
 
     Keyword arguments:
@@ -52,17 +51,21 @@ def prepare_prediction_for_host_aggregate(
         cpu threads required to run workload.
     """
     flavor_vcpus_max = int(
-        aggregate['cpu']['threads'] * config['flavor']['free']['vcpus']
+        aggregate['cpu']['threads'] *
+        core.configuration['converter']['flavor']['free']['vcpus']
     )
 
     flavor_ram_max = int(
-        aggregate['ram']['size'] * config['flavor']['free']['ram']
+        aggregate['ram']['size'] *
+        core.configuration['converter']['flavor']['free']['ram']
     ) * 1024
 
     flavor_disk_max = int(
-        aggregate['disk']['size'] * config['flavor']['free']['disk'])
+        aggregate['disk']['size'] *
+        core.configuration['converter']['flavor']['free']['disk'])
 
-    if allocation == config['allocation_mode']['shared']:
+    if allocation == \
+            core.configuration['converter']['allocation_mode']['shared']:
         flavor_vcpus = int(math.ceil(requirements['cpu_threads']))
         flavor_ram = int(math.ceil(requirements['ram_size'])) * 1024
         flavor_disk = int(math.ceil(requirements['disk']))
@@ -75,7 +78,8 @@ def prepare_prediction_for_host_aggregate(
             log.warning(message)
             raise NotEnoughResourcesError(message)
 
-    elif allocation == config['allocation_mode']['exclusive']:
+    elif allocation == \
+            core.configuration['converter']['allocation_mode']['exclusive']:
         flavor_vcpus = flavor_vcpus_max
         flavor_ram = flavor_ram_max
         flavor_disk = flavor_disk_max
@@ -144,14 +148,16 @@ def _filter_peaks(metrics):
 
     for metric, metric_samples in metrics.items():
         threshold_low = numpy.percentile(
-            metric_samples, config['threshold_low'])
+            metric_samples, core.configuration['converter']['threshold_low'])
 
-        threshold_low = threshold_low / config['threshold']
+        threshold_low = \
+            threshold_low / core.configuration['converter']['threshold']
 
         threshold_high = numpy.percentile(
-            metric_samples, config['threshold_high'])
+            metric_samples, core.configuration['converter']['threshold_high'])
 
-        threshold_high = threshold_high * config['threshold']
+        threshold_high = \
+            threshold_high * core.configuration['converter']['threshold']
 
         metrics_filtered[metric] = filter(
             lambda value: threshold_low <= value <= threshold_high,

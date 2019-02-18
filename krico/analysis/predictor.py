@@ -10,7 +10,7 @@ import uuid
 
 from krico.analysis.converter import prepare_prediction_for_host_aggregate
 
-from krico.core import configuration, PARAMETERS, REQUIREMENTS, CATEGORIES
+from krico import core
 from krico.core.exception import NotEnoughResourcesError, NotFoundError
 
 from krico.database \
@@ -18,7 +18,6 @@ from krico.database \
 
 
 log = logging.getLogger(__name__)
-config = configuration['predictor']
 
 
 class _Predictor(object):
@@ -43,8 +42,9 @@ class _Predictor(object):
         self.model.fit(
             x=x,
             y=y,
-            batch_size=config['batch_size'],
-            validation_split=config['validation_split'],
+            batch_size=core.configuration['predictor']['batch_size'],
+            validation_split=core.configuration
+            ['predictor']['validation_split'],
             epochs=epochs
         )
 
@@ -60,8 +60,8 @@ class _Predictor(object):
         return self.model.predict(data)[0]
 
     def _create_model(self):
-        input_size = len(PARAMETERS[self.category])
-        output_size = len(REQUIREMENTS)
+        input_size = len(core.PARAMETERS[self.category])
+        output_size = len(core.REQUIREMENTS)
 
         self.model = keras.Sequential([
             keras.layers.Dense(
@@ -134,7 +134,7 @@ def predict(category, image, parameters,
 
     # Predict requirements
     requirements = dict(zip(
-        sorted(config['requirements']),
+        sorted(core.configuration['predictor']['requirements']),
         predictor.predict(parameters)))
 
     # Get back disk because it's needed to prepare OpenStack flavor
@@ -166,7 +166,7 @@ def refresh():
     for network in PredictorNetwork.all():
         network.delete()
 
-    for category in CATEGORIES:
+    for category in core.CATEGORIES:
 
         # First create general predictor for category
         if _enough_samples(category):
@@ -187,7 +187,7 @@ def _create_predictor(category, image=None):
     # All predictors include image field, if create general predictor,
     # set this field with default_image.
     if image is None:
-        image = config['default_image']
+        image = core.configuration['predictor']['default_image']
 
     predictor = _Predictor(category, image)
     predictor.train(learning_set)
@@ -219,7 +219,7 @@ def _get_predictor(category, image):
 
     # If not, check if there's general predictor for category
     category_predictor = PredictorNetwork.objects.filter(
-        image=config['default_image'],
+        image=core.configuration['predictor']['default_image'],
         category=category
     ).allow_filtering().first()
 
@@ -249,4 +249,4 @@ def _enough_samples(category, image=None):
             image=image
         ).allow_filtering().count()
 
-    return sample_count >= config['minimal_samples']
+    return sample_count >= core.configuration['predictor']['minimal_samples']

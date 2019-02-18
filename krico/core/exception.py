@@ -1,12 +1,12 @@
-import krico.core.logger
+import logging
 
-_logger = krico.core.logger.get(__name__)
+log = logging.getLogger(__name__)
 
 
 class Error(RuntimeError):
     def __init__(self, message):
         RuntimeError.__init__(self, message)
-        _logger.error(message)
+        log.error(message)
 
 
 class NotFoundError(Error):

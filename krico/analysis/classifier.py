@@ -9,14 +9,12 @@ import logging
 
 from krico.analysis.converter import prepare_mean_sample
 
-from krico.core import configuration, METRICS, CATEGORIES
+from krico.core import configuration as config, METRICS, CATEGORIES
 
 from krico.database \
     import ClassifierInstance, MonitorSample, ClassifierNetwork, HostAggregate
 
-
 log = logging.getLogger(__name__)
-config = configuration['classifier']
 
 
 class _Classifier(object):
@@ -41,9 +39,9 @@ class _Classifier(object):
         self.model.fit(
             x=x,
             y=y,
-            batch_size=config['batch_size'],
+            batch_size=config['classifier']['batch_size'],
             epochs=epochs,
-            validation_split=config['validation_split']
+            validation_split=config['classifier']['validation_split']
         )
 
     def predict(self, sample):
@@ -156,7 +154,7 @@ def _load_classifier(configuration_id):
 
     if not classifier:
         classifier = ClassifierNetwork.objects.filter(
-            configuration_id=config['default_configuration_id']
+            configuration_id=config['classifier']['default_configuration_id']
         ).allow_filtering().first()
 
     return pickle.loads(classifier.network)
@@ -170,7 +168,7 @@ def _enough_samples(configuration_id):
             category=category
         ).allow_filtering().count()
 
-        if sample_count < config['minimal_samples']:
+        if sample_count < config['classifier']['minimal_samples']:
             return False
 
     return True

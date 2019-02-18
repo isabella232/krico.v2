@@ -15,12 +15,11 @@ import json
 import logging
 import uuid
 
-from krico.core import configuration, CATEGORIES
+from krico import core
 
 from krico.core.exception import Error, DatabaseConnectionError
 
 log = logging.getLogger(__name__)
-config = configuration['database']
 
 
 class Host(UserType):
@@ -216,7 +215,7 @@ class ClassifierInstance(Model):
                 sorted(instance.load_measured.items())
             )
             x.append(requirements.values())
-            y.append(CATEGORIES.index(instance.category))
+            y.append(core.CATEGORIES.index(instance.category))
 
         return numpy.array(x), numpy.array(y)
 
@@ -358,12 +357,15 @@ def connect():
     """Connect to Cassandra database."""
 
     try:
-        connection.setup([config['host']], config['keyspace'])
+        connection.setup(
+            [core.configuration['database']['host']],
+            core.configuration['database']['keyspace'])
         log.info('Connected to Cassandra database!')
     except CQLEngineException:
         raise DatabaseConnectionError(
             'Cannot connect to Cassandra database at {}:{}.'.format(
-                config['host'], config['keyspace']))
+                core.configuration['database']['host'],
+                core.configuration['database']['keyspace']))
 
 
 def delete_database():
@@ -371,7 +373,7 @@ def delete_database():
 
     if not connection.session:
         connect()
-    drop_keyspace(config['keyspace'])
+    drop_keyspace(core.configuration['database']['keyspace'])
 
 
 def fill(classifier_data_path, predictor_data_path):
@@ -386,9 +388,11 @@ def fill(classifier_data_path, predictor_data_path):
             Path to JSON with predictor data."""
 
     connect()
-    drop_keyspace(config['keyspace'])
-    create_keyspace_simple(config['keyspace'],
-                           config['replication_factor'])
+    drop_keyspace(core.configuration['database']['keyspace'])
+    create_keyspace_simple(
+        core.configuration['database']['keyspace'],
+        core.configuration['database']['replication_factor'])
+
     sync_table(Image)
     sync_table(HostAggregate)
     sync_table(ClassifierInstance)

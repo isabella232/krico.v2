@@ -2,15 +2,14 @@ import logging
 import logging.config
 import sys
 
-from krico.core import configuration
+from krico import core
 
 
 def init():
-    config = configuration['logger']
-
-    preset = config['preset']
-    logger_configuration = config['defaults'].copy()
-    preset_configuration = config['presets'][preset].copy()
+    preset = core.configuration['logger']['preset']
+    logger_configuration = core.configuration['logger']['defaults'].copy()
+    preset_configuration = \
+        core.configuration['logger']['presets'][preset].copy()
     logger_configuration.update(preset_configuration)
 
     try:

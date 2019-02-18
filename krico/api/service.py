@@ -20,11 +20,11 @@ from krico.api.proto import api_pb2_grpc as api_service
 
 from krico.database import connect as connect_to_db
 
-from krico.core import configuration
+from krico import core
 from krico.core.exception import Error
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
-config = configuration['api']
+
 log = logging.getLogger(__name__)
 
 
@@ -57,7 +57,7 @@ class Api(api_service.ApiServicer):
 
     def WorkloadsCategories(self, request, context):
         return api_messages.WorkloadsCategoriesResponse(
-            workloads_categories=config['workloads']['categories'])
+            workloads_categories=core.configuration['workloads']['categories'])
 
 
 class ApiWorker(Thread):
@@ -67,7 +67,8 @@ class ApiWorker(Thread):
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         api_service.add_ApiServicer_to_server(Api(), self.server)
         self.server.add_insecure_port('{0}:{1}'.format(
-            config['host'], config['port']))
+            core.configuration['api']['host'],
+            core.configuration['api']['port']))
         self.daemon = True
         signal.signal(signal.SIGINT, self._signal_handler)
 
@@ -80,7 +81,8 @@ class ApiWorker(Thread):
         try:
             self.server.start()
             log.info('Listening on {0}:{1}'.format(
-                config['host'], config['port']))
+                core.configuration['api']['host'],
+                core.configuration['api']['port']))
             signal.pause()
 
         except Exception as e:
