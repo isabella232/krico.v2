@@ -23,6 +23,7 @@ import argparse
 
 from krico import core
 from krico.api import service
+from krico.core import logger
 
 
 def main():
@@ -39,6 +40,8 @@ def main():
 
     # Initialize all necessary objects.
     core.init(args.config)
+
+    logger.init()
 
     # Run service.
     service.run()

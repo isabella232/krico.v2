@@ -4,10 +4,10 @@ import sys
 
 from krico.core import configuration
 
-config = configuration['logger']
 
+def init():
+    config = configuration['logger']
 
-def initialize():
     preset = config['preset']
     logger_configuration = config['defaults'].copy()
     preset_configuration = config['presets'][preset].copy()
