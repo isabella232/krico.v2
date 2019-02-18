@@ -9,7 +9,7 @@ import logging
 
 from krico.analysis.converter import prepare_mean_sample
 
-from krico.core import configuration as config, METRICS, CATEGORIES
+from krico import core
 
 from krico.database \
     import ClassifierInstance, MonitorSample, ClassifierNetwork, HostAggregate
@@ -39,9 +39,10 @@ class _Classifier(object):
         self.model.fit(
             x=x,
             y=y,
-            batch_size=config['classifier']['batch_size'],
+            batch_size=core.configuration['classifier']['batch_size'],
             epochs=epochs,
-            validation_split=config['classifier']['validation_split']
+            validation_split=
+            core.configuration['classifier']['validation_split']
         )
 
     def predict(self, sample):
@@ -57,8 +58,8 @@ class _Classifier(object):
         return numpy.argmax(self.model.predict(sample))
 
     def _create_model(self):
-        input_size = len(METRICS)
-        output_size = len(CATEGORIES)
+        input_size = len(core.METRICS)
+        output_size = len(core.CATEGORIES)
 
         self.model = keras.Sequential([
             keras.layers.Dense(
@@ -107,17 +108,17 @@ def classify(instance_id):
 
     classifier = _load_classifier(instance.host_aggregate.configuration_id)
 
-    mean_load = prepare_mean_sample(monitor_samples, METRICS)
+    mean_load = prepare_mean_sample(monitor_samples, core.METRICS)
 
     prediction = classifier.predict(mean_load)
 
     log.info('Category predicted for {} is: {}({})'.format(
         instance.instance_id,
-        CATEGORIES[prediction],
+        core.CATEGORIES[prediction],
         prediction
     ))
 
-    return CATEGORIES[prediction]
+    return core.CATEGORIES[prediction]
 
 
 def refresh():
@@ -154,21 +155,22 @@ def _load_classifier(configuration_id):
 
     if not classifier:
         classifier = ClassifierNetwork.objects.filter(
-            configuration_id=config['classifier']['default_configuration_id']
+            configuration_id=
+            core.configuration['classifier']['default_configuration_id']
         ).allow_filtering().first()
 
     return pickle.loads(classifier.network)
 
 
 def _enough_samples(configuration_id):
-    for category in CATEGORIES:
+    for category in core.CATEGORIES:
 
         sample_count = ClassifierInstance.objects.filter(
             configuration_id=configuration_id,
             category=category
         ).allow_filtering().count()
 
-        if sample_count < config['classifier']['minimal_samples']:
+        if sample_count < core.configuration['classifier']['minimal_samples']:
             return False
 
     return True
