@@ -2,11 +2,8 @@ import mock
 import pickle
 
 import krico.analysis.predictor
-import krico.core
-import krico.core.exception
-import krico.database
 
-_configuration = krico.core.configuration['predictor']
+from krico import core
 
 category = 'bigdata'
 image = 'krico-img'
@@ -14,7 +11,7 @@ image = 'krico-img'
 
 class TestEnoughSamples(object):
 
-    @mock.patch('krico.database.PredictorInstance')
+    @mock.patch('krico.analysis.predictor.PredictorInstance')
     def test_if_not_enough_samples(self, mock_predictor_instance):
         mock_predictor_instance.objects.filter.return_value.\
             allow_filtering.return_value.count.return_value = 0
@@ -22,11 +19,11 @@ class TestEnoughSamples(object):
         assert krico.analysis.predictor._enough_samples(category,
                                                         image) is False
 
-    @mock.patch('krico.database.PredictorInstance')
+    @mock.patch('krico.analysis.predictor.PredictorInstance')
     def test_if_enough_samples(self, mock_predictor_instance):
         mock_predictor_instance.objects.filter.return_value.\
             allow_filtering.return_value.count.return_value = \
-            _configuration['minimal_samples']
+            core.configuration['predictor']['minimal_samples']
         assert krico.analysis.predictor._enough_samples(category) is True
         assert krico.analysis.predictor._enough_samples(category,
                                                         image) is True
@@ -56,10 +53,10 @@ class TestPredictor(object):
 
 class TestGetPredictor(object):
 
-    @mock.patch('krico.database.PredictorNetwork')
+    @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_return_specific_image_network(self, mock_predictor_network):
 
-        predictor = krico.database.PredictorNetwork
+        predictor = krico.analysis.predictor.PredictorNetwork
         predictor.image = image
         predictor.category = category
         predictor.network = pickle.dumps(
@@ -75,7 +72,7 @@ class TestGetPredictor(object):
 
     @mock.patch('krico.analysis.predictor._create_predictor')
     @mock.patch('krico.analysis.predictor._enough_samples')
-    @mock.patch('krico.database.PredictorNetwork')
+    @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_create_specific_image_network(self, mock_predictor_network,
                                               mock_enough_samples,
                                               mock_create_predictor):
@@ -92,11 +89,11 @@ class TestGetPredictor(object):
             krico.analysis.predictor._Predictor)
 
     @mock.patch('krico.analysis.predictor._enough_samples')
-    @mock.patch('krico.database.PredictorNetwork')
+    @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_return_category_network(self, mock_predictor_network,
                                         mock_enough_samples):
 
-        predictor = krico.database.PredictorNetwork
+        predictor = krico.analysis.predictor.PredictorNetwork
         predictor.image = image
         predictor.category = category
         predictor.network = pickle.dumps(
@@ -114,7 +111,7 @@ class TestGetPredictor(object):
 
     @mock.patch('krico.analysis.predictor._create_predictor')
     @mock.patch('krico.analysis.predictor._enough_samples')
-    @mock.patch('krico.database.PredictorNetwork')
+    @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_create_category_network(self, mock_predictor_network,
                                         mock_enough_samples,
                                         mock_create_predictor):
@@ -131,7 +128,7 @@ class TestGetPredictor(object):
             krico.analysis.predictor._Predictor)
 
     @mock.patch('krico.analysis.predictor._enough_samples')
-    @mock.patch('krico.database.PredictorNetwork')
+    @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_raise_exception(self, mock_predictor_network,
                                 mock_enough_samples):
         mock_predictor_network.objects.filter.return_value.\

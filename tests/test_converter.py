@@ -1,29 +1,16 @@
 import pytest
-import mock
 
-import krico.analysis.converter
-import krico.core.exception
+from krico.analysis.converter import\
+    prepare_prediction_for_host_aggregate, prepare_mean_sample, _filter_peaks
+
+from krico.core.exception import NotEnoughResourcesError
 
 
-@mock.patch.dict(krico.analysis.converter.config,
-                 {
-                     'flavor': {
-                         'free': {
-                             'vcpus': 1.0,
-                             'ram': 0.9,
-                             'disk': 0.45
-                         }
-                     },
-                     'allocation_mode': {
-                         'shared': 'shared',
-                         'exclusive': 'exclusive'
-                     }
-                 })
 class TestPreparePredictionForHostAggregate(object):
 
     def test_raises_exception_on_not_implemented_allocation_mode(self):
         with pytest.raises(NotImplementedError):
-            krico.analysis.converter.prepare_prediction_for_host_aggregate(
+            prepare_prediction_for_host_aggregate(
                 aggregate=dict({'cpu': {'threads': 100}, 'ram': {'size': 100},
                                 'disk': {'size': 100}}),
                 requirements=dict(
@@ -44,8 +31,8 @@ class TestPreparePredictionForHostAggregate(object):
     ))
     def test_raises_exception_on_not_enough_resources(self, aggregate,
                                                       requirements):
-        with pytest.raises(krico.core.exception.NotEnoughResourcesError):
-            krico.analysis.converter.prepare_prediction_for_host_aggregate(
+        with pytest.raises(NotEnoughResourcesError):
+            prepare_prediction_for_host_aggregate(
                 aggregate, requirements, 'shared')
 
     @pytest.mark.parametrize("aggregate,requirements,expected", [
@@ -61,7 +48,7 @@ class TestPreparePredictionForHostAggregate(object):
     def test_give_max_values_if_allocation_mode_is_set_as_exclusive(
             self, aggregate, requirements, expected):
         prediction =\
-            krico.analysis.converter.prepare_prediction_for_host_aggregate(
+            prepare_prediction_for_host_aggregate(
                 aggregate, requirements, 'exclusive')
         assert prediction['flavor']['vcpus'] == expected['vcpus']
         assert prediction['flavor']['ram'] == expected['ram']
@@ -76,19 +63,13 @@ class TestPreparePredictionForHostAggregate(object):
     def test_set_shared_mode_if_none_allocation_is_provided(
             self, aggregate, requirements, expected):
         prediction =\
-            krico.analysis.converter.prepare_prediction_for_host_aggregate(
+            prepare_prediction_for_host_aggregate(
                 aggregate, requirements)
         assert prediction['flavor']['vcpus'] == expected['vcpus']
         assert prediction['flavor']['ram'] == expected['ram']
         assert prediction['flavor']['disk'] == expected['disk']
 
 
-@mock.patch.dict(krico.analysis.converter.config,
-                 {
-                     'threshold': 3.0,
-                     'threshold_low': 3,
-                     'threshold_high': 97,
-                 })
 class TestPrepareMeanSamples(object):
     @pytest.mark.parametrize("samples,metrics,expected", [
         ([
@@ -259,19 +240,12 @@ class TestPrepareMeanSamples(object):
          })
     ])
     def test_prepare_mean_sample(self, samples, metrics, expected):
-        mean_sample = krico.analysis.converter.prepare_mean_sample(samples,
-                                                                   metrics)
+        mean_sample = prepare_mean_sample(samples, metrics)
 
         for sample in expected.keys():
             assert mean_sample[sample] == expected[sample]
 
 
-@mock.patch.dict(krico.analysis.converter.config,
-                 {
-                     'threshold': 3.0,
-                     'threshold_low': 3,
-                     'threshold_high': 97,
-                 })
 class TestFilterPeaks(object):
     @pytest.mark.parametrize("samples,expected", [
         ({
@@ -313,7 +287,7 @@ class TestFilterPeaks(object):
          })
     ])
     def test_filter_peaks(self, samples, expected):
-        test_samples = krico.analysis.converter._filter_peaks(samples)
+        test_samples = _filter_peaks(samples)
 
         for sample in expected.keys():
             assert test_samples[sample] == expected[sample]
