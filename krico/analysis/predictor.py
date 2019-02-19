@@ -74,7 +74,7 @@ class _Predictor(object):
     def _compile_model(self, learning_rate=0.05, momentum=0.9):
         optimizer = keras.optimizers.SGD(learning_rate, momentum)
         self.model.compile(loss='mean_squared_error', optimizer=optimizer)
-        log.info('Model compiling...')
+        log.info('Model compiled')
 
 
 def predict(category, image, parameters,
