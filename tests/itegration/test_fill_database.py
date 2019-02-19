@@ -1,19 +1,19 @@
 import datetime
-import mock
 import json
+import os
 import uuid
 import krico.database
 
 
 class TestFillDatabase(object):
 
-    @mock.patch('krico.database._configuration')
-    def test_fill_database(self, mock_configuration):
-        mock_configuration.host = 'localhost'
-        mock_configuration.keyspace = 'test'
-        mock_configuration.replication_factor = 1
-        classifier_data_path = 'test_classifier_data.json'
-        predictor_data_path = 'test_predictor_data.json'
+    def test_fill_database(self):
+        classifier_data_path = \
+            '{}/test_classifier_data.json'.\
+            format(os.path.dirname(os.path.abspath(__file__)))
+        predictor_data_path = \
+            '{}/test_predictor_data.json'.\
+            format(os.path.dirname(os.path.abspath(__file__)))
         krico.database.fill(classifier_data_path, predictor_data_path)
 
         with open(classifier_data_path) as f:
