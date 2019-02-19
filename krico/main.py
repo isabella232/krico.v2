@@ -32,8 +32,7 @@ def main():
     parser.add_argument(
         '-c', '--config',
         help="Configuration path",
-        default='/etc/krico/config.yml',
-        required=False
+        required=True
     )
 
     args = parser.parse_args()
