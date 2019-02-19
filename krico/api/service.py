@@ -95,6 +95,7 @@ def run():
     try:
         connect_to_db()
     except Error:
+        log.error(Error.message)
         exit(1)
 
     api = ApiWorker()
