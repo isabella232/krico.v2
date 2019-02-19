@@ -41,8 +41,8 @@ class _Classifier(object):
             y=y,
             batch_size=core.configuration['classifier']['batch_size'],
             epochs=epochs,
-            validation_split=
-            core.configuration['classifier']['validation_split']
+            validation_split=core.configuration
+            ['classifier']['validation_split']
         )
 
     def predict(self, sample):
@@ -155,8 +155,8 @@ def _load_classifier(configuration_id):
 
     if not classifier:
         classifier = ClassifierNetwork.objects.filter(
-            configuration_id=
-            core.configuration['classifier']['default_configuration_id']
+            configuration_id=core.configuration
+            ['classifier']['default_configuration_id']
         ).allow_filtering().first()
 
     return pickle.loads(classifier.network)
