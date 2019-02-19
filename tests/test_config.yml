@@ -1,7 +1,9 @@
+keras_backend: theano
+
 database:
-    host: localhost
+    host: 100.65.192.12
     port: 9042
-    keyspace: krico
+    keyspace: test
     replication_factor: 1
 
 environment:
