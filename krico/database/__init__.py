@@ -51,14 +51,14 @@ class Flavor(UserType):
     ------------------
     name: Name of OpenStack flavor.
 
-    vcups: Number of Virtual CPU's.
+    vcpus: Number of Virtual CPU's.
 
     ram: Ram size in GBs.
 
     disk: Disk size in GBs."""
 
     name = columns.Text()
-    vcups = columns.Integer()
+    vcpus = columns.Integer()
     ram = columns.Integer()
     disk = columns.Integer()
 
@@ -180,7 +180,7 @@ class ClassifierInstance(Model):
     name = columns.Text()
     configuration_id = columns.Text()
     category = columns.Text()
-    parameters = columns.Map(columns.Text(), columns.Integer())
+    parameters = columns.Map(columns.Text(), columns.Double())
     host_aggregate = columns.UserDefinedType(Host)
     image = columns.Text()
     host = columns.Text()
@@ -418,7 +418,7 @@ def fill(classifier_data_path, predictor_data_path):
                 cpu=row['host_aggregate']['cpu']
             ),
             flavor=Flavor(
-                vcups=row['flavor']['vcpus'],
+                vcpus=row['flavor']['vcpus'],
                 disk=row['flavor']['disk'],
                 ram=row['flavor']['ram'],
                 name=row['flavor']['name']
