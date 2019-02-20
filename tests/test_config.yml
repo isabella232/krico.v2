@@ -1,0 +1,141 @@
+keras_backend: theano
+
+database:
+    host: localhost
+    port: 9042
+    keyspace: test
+    replication_factor: 1
+
+environment:
+    configuration: /etc/krico
+    resources: /var/lib/krico
+    logs: /var/log/krico
+
+api:
+  host: localhost
+  port: 5000
+
+workloads:
+  categories:
+    - name: bigdata
+      parameters:
+        - processors
+        - memory
+        - data
+
+    - name: caching
+      parameters:
+        - memory
+        - ratio
+        - clients
+
+    - name: oltp
+      parameters:
+        - data
+        - clients
+
+    - name: science
+      parameters:
+        - processors
+        - memory
+
+    - name: streaming
+      parameters:
+        - bitrate
+        - clients
+
+    - name: webserving
+      parameters:
+        - clients
+
+classifier:
+  batch_size: 32
+  validation_split: 0.35
+  minimal_samples: 80
+  default_configuration_id: krico-cpu-48-10-ram-64-40-disk-1780-400
+
+  metrics:
+    - 'cpu:time'
+    - 'ram:used'
+    - 'disk:bandwidth:read'
+    - 'disk:bandwidth:write'
+    - 'disk:operations:read'
+    - 'disk:operations:write'
+    - 'network:bandwidth:send'
+    - 'network:bandwidth:receive'
+    - 'network:packets:send'
+    - 'network:packets:receive'
+    - 'cpu:cache:misses'
+    - 'cpu:cache:references'
+
+
+predictor:
+  batch_size: 32
+  validation_split: 0.35
+  minimal_samples: 10
+  default_image: default
+
+  requirements:
+    - disk_iops
+    - network_bandwidth
+    - ram_size
+    - cpu_threads
+
+converter:
+  threshold: 3.0
+  threshold_low: 3
+  threshold_high: 97
+
+  allocation_mode:
+    shared: shared
+    exclusive: exclusive
+
+  flavor:
+    reserved:
+      vcpus: 0.0  # portion of VCPUs reserved for host OS [0.0 - 1.0]
+      ram: 0.1    # portion of RAM reserved for host OS [0.0 - 1.0]
+      disk: 0.55  # portion of Disk space reserved for host OS [0.0 - 1.0]
+
+    free:
+      vcpus: 1.0  # portion of VCPUs left for instance [0.0 - 1.0]
+      ram: 0.9    # portion of RAM left for instance [0.0 - 1.0]
+      disk: 0.45  # portion of Disk space left for instance [0.0 - 1.0]
+
+logger:
+  preset: console
+
+  defaults:
+    version: 1
+
+    formatters:
+      simple:
+        format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+    handlers:
+      console:
+        class: krico.core.stream.LoggingHandler
+        formatter: simple
+
+      file:
+        class: logging.handlers.RotatingFileHandler
+        formatter: simple
+        filename: <environment.logs>/default.log
+
+      empty:
+        class: logging.NullHandler
+
+    root:
+      level: DEBUG
+
+  presets:
+    console:
+      root:
+        handlers: [console]
+
+    file:
+      root:
+        handlers: [file]
+
+    disabled:
+      root:
+        handlers: [empty]

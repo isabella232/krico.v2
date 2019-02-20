@@ -31,7 +31,7 @@ message PredictRequest {
     string category = 1;
     string image = 2;
     repeated string parameters = 3;
-    string availability_zone = 4;
+    string host_aggregate = 4;
     string allocation = 5;
 }
 
