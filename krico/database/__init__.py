@@ -39,9 +39,9 @@ class Host(UserType):
 
     name = columns.Text()
     configuration_id = columns.Text()
-    cpu = columns.Map(columns.Text(), columns.Integer())
-    ram = columns.Map(columns.Text(), columns.Integer())
-    disk = columns.Map(columns.Text(), columns.Integer())
+    cpu = columns.Map(columns.Text(), columns.Text())
+    ram = columns.Map(columns.Text(), columns.Text())
+    disk = columns.Map(columns.Text(), columns.Text())
 
 
 class Flavor(UserType):
@@ -80,9 +80,9 @@ class HostAggregate(Model):
 
     name = columns.Text()
     configuration_id = columns.Text(primary_key=True)
-    cpu = columns.Map(columns.Text(), columns.Integer())
-    ram = columns.Map(columns.Text(), columns.Integer())
-    disk = columns.Map(columns.Text(), columns.Integer())
+    cpu = columns.Map(columns.Text(), columns.Text())
+    ram = columns.Map(columns.Text(), columns.Text())
+    disk = columns.Map(columns.Text(), columns.Text())
 
     @staticmethod
     def get_host_aggregates(configuration_id=None):

@@ -11,18 +11,18 @@ DROP TYPE IF exists krico.host;
 DROP TYPE IF exists krico.flavor;
 
 CREATE TYPE krico.host (
-  disk map<text,int>,
-  ram map<text,int>,
   name text,
   configuration_id text,
-  cpu map<text,int>
+  cpu map<text,text>
+  ram map<text,text>,
+  disk map<text,text>,
 );
 
 CREATE TYPE krico.flavor (
-  vcups int,
-  disk int,
-  ram int,
   name text
+  vcups text,
+  ram text,
+  disk text,
 );
 
 CREATE TABLE krico.host_aggregate (
