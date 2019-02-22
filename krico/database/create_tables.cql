@@ -40,9 +40,9 @@ CREATE TABLE krico.image (
 
 CREATE TABLE krico.classifier_instance (
   id uuid PRIMARY KEY,
-  category text,
+  category text PRIMARY KEY,
   name text,
-  configuration_id text,
+  configuration_id text PRIMARY KEY,
   parameters map<text,int>,
   host_aggregate FROZEN<host>,
   image text,
@@ -63,8 +63,7 @@ CREATE TABLE krico.classifier_statistic (
 );
 
 CREATE TABLE krico.classifier_network (
-  id uuid PRIMARY KEY,
-  configuration_id text,
+  configuration_id text PRIMARY KEY,
   network blob
 );
 
