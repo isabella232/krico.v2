@@ -74,7 +74,7 @@ CREATE TABLE krico.predictor_instance (
   category text,
   image text,
   requirements map<text,double>,
-  parameters map<text,int>
+  parameters map<text,double>
 );
 
 CREATE TABLE krico.predictor_network (
