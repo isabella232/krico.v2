@@ -255,7 +255,7 @@ class PredictorInstance(Model):
 
     id = columns.UUID(primary_key=True)
     category = columns.Text()
-    parameters = columns.Map(columns.Text(), columns.Integer())
+    parameters = columns.Map(columns.Text(), columns.Double())
     image = columns.Text()
     instance_id = columns.Text()
     requirements = columns.Map(columns.Text(), columns.Double())
