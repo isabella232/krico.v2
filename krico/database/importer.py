@@ -1,11 +1,12 @@
 """Metrics importer module."""
+import logging
 
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 from uuid import uuid4
 
 from krico import core
-from krico.core.exception import NotEnoughResourcesError
+from krico.core.exception import NotEnoughMetricsError, NotFoundError
 from krico.database import\
     HostAggregate, ClassifierInstance, Host, Flavor, PredictorInstance
 
@@ -23,6 +24,8 @@ METRIC_NAMES_MAP = {
     'txpackets': 'network:packets:send',
     'rxpackets': 'network:packets:receive'
 }
+
+log = logging.getLogger(__name__)
 
 
 class Metrics(Model):
@@ -80,12 +83,17 @@ def _get_parameters(metric):
     parameters = {}
 
     for param in core.PARAMETERS[metric.tags['category']]:
-        parameters[param] = metric.tags[param]
+        try:
+            parameters[param] = float(metric.tags[param])
+        except KeyError:
+            raise NotFoundError(
+                'Parameter "{}" for metric "{}" not found!'.
+                format(param, metric.ns))
 
     return parameters
 
 
-def _change_keys(metrics):
+def _remap_metrics_names(metrics):
 
     for old_key in metrics.keys():
         for map_key in METRIC_NAMES_MAP.keys():
@@ -124,118 +132,110 @@ def import_from_swan_experiment(experiment_id):
 
     # Check if metrics are available.
     if metric_count <= 0:
-        raise NotEnoughResourcesError(
+        raise NotEnoughMetricsError(
             "No metrics found for experiment: {0}".format(experiment_id)
         )
 
-    # Count batch number.
-    metric_batch_size = len(core.METRICS)
-    batch_count = int(metric_count) / metric_batch_size
-
     # Check if there are available all batches with metrics.
-    if batch_count * metric_batch_size != metric_count:
-        raise NotEnoughResourcesError(
+    metric_batch_size = len(core.METRICS)
+    if metric_count % metric_batch_size != 0:
+        raise NotEnoughMetricsError(
             "Not all batches with metrics are available!"
         )
 
-    # Save host aggregate from first metric.
+    # Count batch number.
+    batch_count = int(metric_count) / metric_batch_size
+
+    # Gather information from first metric.
     metric = metrics.first()
 
+    try:
+        category = metric.tags['category']
+        name = metric.tags['name']
+        configuration_id = metric.tags['host_aggregate_configuration_id']
+        parameters = _get_parameters(metric)
+        host_aggregate = Host(
+            name=metric.tags['host_aggregate_name'],
+            configuration_id=metric.tags[
+                'host_aggregate_configuration_id'],
+            disk={
+                'iops':
+                    int(metric.tags['host_aggregate_disk_iops']),
+                'size':
+                    int(metric.tags['host_aggregate_disk_size'])
+            },
+            ram={
+                'bandwidth':
+                    int(metric.tags['host_aggregate_ram_bandwidth']),
+                'size':
+                    int(metric.tags['host_aggregate_ram_size'])
+            },
+            cpu={
+                'performance':
+                    int(metric.tags['host_aggregate_cpu_performance']),
+                'threads':
+                    int(metric.tags['host_aggregate_cpu_threads'])
+            }
+        )
+        flavor = Flavor(
+            vcpus=int(metric.tags['flavor_vcpus']),
+            disk=int(metric.tags['flavor_disk']),
+            ram=int(metric.tags['flavor_ram']),
+            name=metric.tags['flavor_name']
+        )
+        image = metric.tags['image']
+        host = metric.host
+        instance_id = metric.tags['instance_id']
+    except KeyError as e:
+        raise NotFoundError(
+            'No basic parameters found: {}'.format(e.message))
+
+    # Save host aggregate information.
     HostAggregate(
-        configuration_id=metric.tags['host_aggregate_configuration_id'],
-        name=metric.tags['host_aggregate_name'],
-        disk={
-            'iops': metric.tags['host_aggregate_disk_iops'],
-            'size': metric.tags['host_aggregate_disk_size']
-        },
-        ram={
-            'bandwidth': metric.tags['host_aggregate_ram_bandwidth'],
-            'size': metric.tags['host_aggregate_ram_size']
-        },
-        cpu={
-            'performance': metric.tags['host_aggregate_cpu_performance'],
-            'threads': metric.tags['host_aggregate_cpu_threads']
-        }
+        name=host_aggregate.name,
+        configuration_id=host_aggregate.configuration_id,
+        cpu=host_aggregate.cpu,
+        ram=host_aggregate.ram,
+        disk=host_aggregate.disk
     ).save()
 
-    # Save metrics.
-    classifier_instances = []
-    predictor_instances = []
-    load_measured = {}
-    iter_counter = 0
+    # Get metrics.
+    resource_usage = {}
 
     for i in range(0, metric_batch_size):
         key = metrics[i*batch_count].ns
-        load_measured[key] = list()
+        resource_usage[key] = list()
 
     for metric in metrics:
-
-        load_measured[metric.ns].append(metric.doubleval)
-
-        if iter_counter % metric_batch_size == 0:
-            classifier_instances.append(ClassifierInstance(
-                id=uuid4(),
-                category=metric.tags['category'],
-                name=metric.tags['name'],
-                configuration_id=metric.tags[
-                    'host_aggregate_configuration_id'],
-                parameters=_get_parameters(metric),
-                host_aggregate=Host(
-                    name=metric.tags['host_aggregate_name'],
-                    configuration_id=metric.tags[
-                        'host_aggregate_configuration_id'],
-                    disk={
-                        'iops':
-                            metric.tags['host_aggregate_disk_iops'],
-                        'size':
-                            metric.tags['host_aggregate_disk_size']
-                    },
-                    ram={
-                        'bandwidth':
-                            metric.tags['host_aggregate_ram_bandwidth'],
-                        'size':
-                            metric.tags['host_aggregate_ram_size']
-                    },
-                    cpu={
-                        'performance':
-                            metric.tags['host_aggregate_cpu_performance'],
-                        'threads':
-                            metric.tags['host_aggregate_cpu_threads']
-                    }
-                ),
-                flavor=Flavor(
-                    vcpus=metric.tags['flavor_vcpus'],
-                    disk=metric.tags['flavor_disk'],
-                    ram=metric.tags['flavor_ram'],
-                    name=metric.tags['flavor_name']
-                ),
-                image=metric.tags['image'],
-                host=metric.host,
-                instance_id=metric.tags['instance_id'],
-            ))
-
-            predictor_instances.append(PredictorInstance(
-                id=uuid4(),
-                image=metric.tags['image'],
-                instance_id=metric.tags['name'],
-                category=metric.tags['category'],
-                parameters=_get_parameters(metric)
-            ))
-
-        iter_counter += 1
+        resource_usage[metric.ns].append(metric.doubleval)
 
     # Change metric names from SNAP to KRICO standards.
-    _change_keys(load_measured)
+    _remap_metrics_names(resource_usage)
 
     # Fill database.
-    for i in range(0, batch_count-1):
+    for i in range(0, batch_count):
+        # Calculate resources usage.
+        usage = {}
         for name in METRIC_NAMES_MAP.values():
-            classifier_instances[i].load_measured[name] =\
-                load_measured[name][i]
+            usage[name] = resource_usage[name][i]
 
-        classifier_instances[i].save()
+        ClassifierInstance(
+            id=uuid4(),
+            category=category,
+            name=name,
+            configuration_id=configuration_id,
+            parameters=parameters,
+            host_aggregate=host_aggregate,
+            flavor=flavor,
+            image=image,
+            host=host,
+            instance_id=instance_id,
+            resource_usage=usage
+        ).save()
 
-        predictor_instances[i].requirements = _get_requirements(
-            classifier_instances[i].load_measured
-        )
-        predictor_instances[i].save()
+        PredictorInstance(
+            id=uuid4(),
+            image=image,
+            parameters=parameters,
+            resource_usage=usage
+        ).save()
