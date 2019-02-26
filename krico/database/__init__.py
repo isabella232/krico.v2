@@ -39,9 +39,9 @@ class Host(UserType):
 
     name = columns.Text()
     configuration_id = columns.Text()
-    cpu = columns.Map(columns.Text(), columns.Text())
-    ram = columns.Map(columns.Text(), columns.Text())
-    disk = columns.Map(columns.Text(), columns.Text())
+    cpu = columns.Map(columns.Text(), columns.Integer())
+    ram = columns.Map(columns.Text(), columns.Integer())
+    disk = columns.Map(columns.Text(), columns.Integer())
 
 
 class Flavor(UserType):
@@ -80,9 +80,9 @@ class HostAggregate(Model):
 
     name = columns.Text()
     configuration_id = columns.Text(primary_key=True)
-    cpu = columns.Map(columns.Text(), columns.Text())
-    ram = columns.Map(columns.Text(), columns.Text())
-    disk = columns.Map(columns.Text(), columns.Text())
+    cpu = columns.Map(columns.Text(), columns.Integer())
+    ram = columns.Map(columns.Text(), columns.Integer())
+    disk = columns.Map(columns.Text(), columns.Integer())
 
     @staticmethod
     def get_host_aggregates(configuration_id=None):
@@ -168,7 +168,7 @@ class ClassifierInstance(Model):
 
     instance_id: Id of instance.
 
-    load_measured: Collected metrics.
+    resource_usage: Collected metrics.
 
     stop_time: Stop collecting time.
 
@@ -185,7 +185,7 @@ class ClassifierInstance(Model):
     image = columns.Text()
     host = columns.Text()
     instance_id = columns.Text()
-    load_measured = columns.Map(columns.Text(), columns.Double())
+    resource_usage = columns.Map(columns.Text(), columns.Double())
     stop_time = columns.DateTime()
     flavor = columns.UserDefinedType(Flavor)
     start_time = columns.DateTime()
@@ -255,7 +255,7 @@ class PredictorInstance(Model):
 
     id = columns.UUID(primary_key=True)
     category = columns.Text()
-    parameters = columns.Map(columns.Text(), columns.Integer())
+    parameters = columns.Map(columns.Text(), columns.Double())
     image = columns.Text()
     instance_id = columns.Text()
     requirements = columns.Map(columns.Text(), columns.Double())
@@ -426,7 +426,7 @@ def fill(classifier_data_path, predictor_data_path):
             image=row['image'],
             host=row['host'],
             instance_id=row['instance_id'],
-            load_measured=row['load_measured'],
+            resource_usage=row['load_measured'],
             stop_time=datetime.datetime.strptime(row['start_time'],
                                                  "%Y-%m-%dT%H:%M:%S.%fZ"),
             start_time=datetime.datetime.strptime(row['start_time'],
