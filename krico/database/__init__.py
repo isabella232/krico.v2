@@ -178,8 +178,8 @@ class ClassifierInstance(Model):
 
     id = columns.UUID(primary_key=True)
     name = columns.Text()
-    configuration_id = columns.Text()
-    category = columns.Text()
+    configuration_id = columns.Text(primary_key=True)
+    category = columns.Text(primary_key=True)
     parameters = columns.Map(columns.Text(), columns.Double())
     host_aggregate = columns.UserDefinedType(Host)
     image = columns.Text()
@@ -191,11 +191,13 @@ class ClassifierInstance(Model):
     start_time = columns.DateTime()
 
     @staticmethod
-    def get_classifier_learning_set(configuration_id):
+    def get_classifier_learning_set(category, configuration_id):
         """Prepare classifier learning data for specific host aggregate.
 
         Keyword arguments:
         ------------------
+        category: string
+            Name of category.
         configuration_id : string
             Name of host aggregate.
 
@@ -207,7 +209,8 @@ class ClassifierInstance(Model):
         y = []
 
         instance_query = ClassifierInstance.objects.filter(
-            configuration_id=configuration_id
+            configuration_id=configuration_id,
+            category=category
         ).allow_filtering()
 
         for instance in instance_query:
@@ -231,8 +234,7 @@ class ClassifierNetwork(Model):
 
     network: Neural network model in bytes."""
 
-    id = columns.UUID(primary_key=True)
-    configuration_id = columns.Text()
+    configuration_id = columns.Text(primary_key=True)
     network = columns.Blob()
 
 

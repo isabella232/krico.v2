@@ -32,7 +32,10 @@ class _Classifier(object):
         x = keras.utils.normalize(data[0])
 
         # Convert y for categorical_crossentropy loss function
-        y = keras.utils.to_categorical(data[1])
+        y = keras.utils.to_categorical(
+            y=data[1],
+            num_classes=len(core.CATEGORIES)
+        )
 
         epochs = len(data[0])
 
@@ -129,20 +132,37 @@ def refresh():
         network.delete()
 
     for host_aggregate in HostAggregate.get_host_aggregates():
-        if _enough_samples(host_aggregate.configuration_id):
-            _create_and_save_classifier(host_aggregate.configuration_id)
+        log.info('Refreshing classifier for "{}" host aggregate.'.format(
+            host_aggregate.configuration_id))
+
+        for category in core.CATEGORIES:
+
+            if _enough_samples(host_aggregate.configuration_id):
+                _create_and_save_classifier(
+                    category, host_aggregate.configuration_id)
+
+            else:
+                log.warning('Not enough samples for "{}" category '
+                            'in "{}" host aggregate.')
 
 
-def _create_and_save_classifier(configuration_id):
+def _create_and_save_classifier(category, configuration_id):
 
     learning_set = ClassifierInstance.\
-        get_classifier_learning_set(configuration_id)
+        get_classifier_learning_set(category, configuration_id)
 
-    classifier = _Classifier(configuration_id)
+    classifier = ClassifierNetwork.objects.filter(
+        configuration_id=configuration_id
+    ).allow_filtering().first()
+
+    if not classifier:
+        classifier = _Classifier(configuration_id)
+    else:
+        classifier = pickle.load(classifier.network)
+
     classifier.train(learning_set)
 
     ClassifierNetwork.create(
-        id=uuid.uuid4(),
         configuration_id=configuration_id,
         network=pickle.dumps(classifier)
     )
@@ -162,15 +182,13 @@ def _load_classifier(configuration_id):
     return pickle.loads(classifier.network)
 
 
-def _enough_samples(configuration_id):
-    for category in core.CATEGORIES:
+def _enough_samples(category, configuration_id):
+    sample_count = ClassifierInstance.objects.filter(
+        configuration_id=configuration_id,
+        category=category
+    ).allow_filtering().count()
 
-        sample_count = ClassifierInstance.objects.filter(
-            configuration_id=configuration_id,
-            category=category
-        ).allow_filtering().count()
-
-        if sample_count < core.configuration['classifier']['minimal_samples']:
-            return False
+    if sample_count < core.configuration['classifier']['minimal_samples']:
+        return False
 
     return True
