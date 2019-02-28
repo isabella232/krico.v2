@@ -37,7 +37,6 @@ class TestFillDatabase(object):
             assert db_object.host_aggregate.cpu == expected['host_aggregate'][
                 'cpu']
             assert db_object.flavor.vcpus == expected['flavor']['vcpus']
-            print(expected['flavor']['vcpus'])
             assert db_object.flavor.disk == expected['flavor']['disk']
             assert db_object.flavor.ram == expected['flavor']['ram']
             assert db_object.flavor.name == expected['flavor']['name']
