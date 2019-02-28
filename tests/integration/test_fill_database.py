@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import uuid
@@ -46,10 +45,6 @@ class TestFillDatabase(object):
             assert db_object.host == expected['host']
             assert db_object.instance_id == expected['instance_id']
             assert db_object.resource_usage == expected['load_measured']
-            assert db_object.stop_time == datetime.datetime.strptime(
-                expected['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
-            assert db_object.start_time == datetime.datetime.strptime(
-                expected['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
 
             db_object = krico.database.HostAggregate.filter(
                 name=expected['host_aggregate'][

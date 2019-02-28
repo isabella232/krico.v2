@@ -10,7 +10,6 @@ from cassandra.cqlengine.usertype import UserType
 
 import collections
 import numpy
-import datetime
 import json
 import logging
 import uuid
@@ -170,11 +169,7 @@ class ClassifierInstance(Model):
 
     resource_usage: Collected metrics.
 
-    stop_time: Stop collecting time.
-
-    flavor: Information about flavor which instance was run on.
-
-    start_time: Start collecting time."""
+    flavor: Information about flavor which instance was run on."""
 
     id = columns.UUID(primary_key=True)
     name = columns.Text()
@@ -186,9 +181,7 @@ class ClassifierInstance(Model):
     host = columns.Text()
     instance_id = columns.Text()
     resource_usage = columns.Map(columns.Text(), columns.Double())
-    stop_time = columns.DateTime()
     flavor = columns.UserDefinedType(Flavor)
-    start_time = columns.DateTime()
 
     @staticmethod
     def get_classifier_learning_set(category, configuration_id):
@@ -428,11 +421,7 @@ def fill(classifier_data_path, predictor_data_path):
             image=row['image'],
             host=row['host'],
             instance_id=row['instance_id'],
-            resource_usage=row['load_measured'],
-            stop_time=datetime.datetime.strptime(row['start_time'],
-                                                 "%Y-%m-%dT%H:%M:%S.%fZ"),
-            start_time=datetime.datetime.strptime(row['start_time'],
-                                                  "%Y-%m-%dT%H:%M:%S.%fZ")
+            resource_usage=row['load_measured']
         )
 
         HostAggregate.create(

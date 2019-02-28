@@ -50,9 +50,7 @@ CREATE TABLE krico.classifier_instance (
   host text,
   instance_id text,
   resource_usage map<text,double>,
-  stop_time timestamp,
   flavor FROZEN<flavor>,
-  start_time timestamp
 );
 
 CREATE TABLE krico.classifier_statistic (
