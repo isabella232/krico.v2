@@ -79,10 +79,10 @@ class Metrics(Model):
         ).allow_filtering()
 
 
-def _get_parameters(metric):
+def _get_parameters(metric, category):
     parameters = {}
 
-    for param in core.PARAMETERS[metric.tags['category']]:
+    for param in core.PARAMETERS[category]:
         try:
             parameters[param] = float(metric.tags[param])
         except KeyError:
@@ -116,6 +116,21 @@ def _get_requirements(metrics):
             metrics['network:bandwidth:send'] +
             metrics['network:bandwidth:receive']
     }
+
+
+def _prepare_resource_usage(metric_batch_size, batch_count, metrics):
+    resource_usage = {}
+
+    # Metrics from SWAN are wrote in batches.
+    # Example: [m1,m1,m1,m2,m2,m2,m3,m3,m3]
+    for i in range(0, metric_batch_size):
+        key = metrics[i*batch_count].ns
+        resource_usage[key] = list()
+
+    for metric in metrics:
+        resource_usage[metric.ns].append(metric.doubleval)
+
+    return resource_usage
 
 
 def import_from_swan_experiment(experiment_id):
@@ -153,7 +168,7 @@ def import_from_swan_experiment(experiment_id):
         category = metric.tags['category']
         name = metric.tags['name']
         configuration_id = metric.tags['host_aggregate_configuration_id']
-        parameters = _get_parameters(metric)
+        parameters = _get_parameters(metric, category)
         host_aggregate = Host(
             name=metric.tags['host_aggregate_name'],
             configuration_id=metric.tags[
@@ -200,14 +215,8 @@ def import_from_swan_experiment(experiment_id):
     ).save()
 
     # Get metrics.
-    resource_usage = {}
-
-    for i in range(0, metric_batch_size):
-        key = metrics[i*batch_count].ns
-        resource_usage[key] = list()
-
-    for metric in metrics:
-        resource_usage[metric.ns].append(metric.doubleval)
+    resource_usage = _prepare_resource_usage(
+        metric_batch_size, batch_count, metrics)
 
     # Change metric names from SNAP to KRICO standards.
     _remap_metrics_names(resource_usage)
