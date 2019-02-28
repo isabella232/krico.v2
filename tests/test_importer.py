@@ -28,7 +28,7 @@ class TestImportFromSwanExperiment(object):
         except Exception as e:
             assert isinstance(e, NotEnoughMetricsError)
 
-    @mock.patch('importer.Metrics')
+    @mock.patch('krico.database.importer.Metrics')
     def test_if_throw_exception_when_cannot_gather_basic_information(
             self, mock_metrics):
         mock_metrics.get_by_experiment_id.return_value.count.return_value =\
@@ -83,10 +83,10 @@ class TestRemapMetricNames(object):
               'memory/rss': 2.0,
               'cache-references': 3.0,
               'cache-misses': 4.0,
-              'wrbytes': 5.0,
-              'rdbytes': 6.0,
-              'wrreq': 7.0,
-              'rdreq': 8.0,
+              'rdbytes': 5.0,
+              'wrbytes': 6.0,
+              'rdreq': 7.0,
+              'wrreq': 8.0,
               'txbytes': 9.0,
               'rxbytes': 10.0,
               'txpackets': 11.0,
