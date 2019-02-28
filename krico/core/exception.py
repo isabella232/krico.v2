@@ -21,3 +21,8 @@ class NotEnoughResourcesError(Error):
 class DatabaseConnectionError(Error):
     def __init__(self, message):
         Error.__init__(self, '{}: {}'.format(self.__repr__(), message))
+
+
+class NotEnoughMetricsError(Error):
+    def __init__(self, message):
+        Error.__init__(self, '{}: {}'.format(self.__repr__(), message))

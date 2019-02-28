@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import uuid
@@ -37,18 +36,14 @@ class TestFillDatabase(object):
                 'host_aggregate']['configuration_id']
             assert db_object.host_aggregate.cpu == expected['host_aggregate'][
                 'cpu']
-            assert db_object.flavor.vcups == expected['flavor']['vcpus']
+            assert db_object.flavor.vcpus == expected['flavor']['vcpus']
             assert db_object.flavor.disk == expected['flavor']['disk']
             assert db_object.flavor.ram == expected['flavor']['ram']
             assert db_object.flavor.name == expected['flavor']['name']
             assert db_object.image == expected['image']
             assert db_object.host == expected['host']
             assert db_object.instance_id == expected['instance_id']
-            assert db_object.load_measured == expected['load_measured']
-            assert db_object.stop_time == datetime.datetime.strptime(
-                expected['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
-            assert db_object.start_time == datetime.datetime.strptime(
-                expected['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
+            assert db_object.resource_usage == expected['load_measured']
 
             db_object = krico.database.HostAggregate.filter(
                 name=expected['host_aggregate'][

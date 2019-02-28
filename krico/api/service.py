@@ -19,6 +19,7 @@ from krico.api.proto import api_pb2 as api_messages
 from krico.api.proto import api_pb2_grpc as api_service
 
 from krico.database import connect as connect_to_db
+from krico.database.importer import import_from_swan_experiment
 
 from krico import core
 from krico.core.exception import Error
@@ -58,6 +59,10 @@ class Api(api_service.ApiServicer):
     def WorkloadsCategories(self, request, context):
         return api_messages.WorkloadsCategoriesResponse(
             workloads_categories=core.configuration['workloads']['categories'])
+
+    def ImportMetricsFromSwanExperiment(self, request, context):
+        import_from_swan_experiment(request.experiment_id)
+        return api_messages.ImportMetricsFromSwanExperimentResponse()
 
 
 class ApiWorker(Thread):

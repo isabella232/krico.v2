@@ -10,7 +10,6 @@ from cassandra.cqlengine.usertype import UserType
 
 import collections
 import numpy
-import datetime
 import json
 import logging
 import uuid
@@ -51,14 +50,14 @@ class Flavor(UserType):
     ------------------
     name: Name of OpenStack flavor.
 
-    vcups: Number of Virtual CPU's.
+    vcpus: Number of Virtual CPU's.
 
     ram: Ram size in GBs.
 
     disk: Disk size in GBs."""
 
     name = columns.Text()
-    vcups = columns.Integer()
+    vcpus = columns.Integer()
     ram = columns.Integer()
     disk = columns.Integer()
 
@@ -168,27 +167,21 @@ class ClassifierInstance(Model):
 
     instance_id: Id of instance.
 
-    load_measured: Collected metrics.
+    resource_usage: Collected metrics.
 
-    stop_time: Stop collecting time.
-
-    flavor: Information about flavor which instance was run on.
-
-    start_time: Start collecting time."""
+    flavor: Information about flavor which instance was run on."""
 
     id = columns.UUID(primary_key=True)
+    name = columns.Text()
     configuration_id = columns.Text(primary_key=True)
     category = columns.Text(primary_key=True)
-    name = columns.Text()
-    parameters = columns.Map(columns.Text(), columns.Integer())
+    parameters = columns.Map(columns.Text(), columns.Double())
     host_aggregate = columns.UserDefinedType(Host)
     image = columns.Text()
     host = columns.Text()
     instance_id = columns.Text()
-    load_measured = columns.Map(columns.Text(), columns.Double())
-    stop_time = columns.DateTime()
+    resource_usage = columns.Map(columns.Text(), columns.Double())
     flavor = columns.UserDefinedType(Flavor)
-    start_time = columns.DateTime()
 
     @staticmethod
     def get_classifier_learning_set(category, configuration_id):
@@ -420,7 +413,7 @@ def fill(classifier_data_path, predictor_data_path):
                 cpu=row['host_aggregate']['cpu']
             ),
             flavor=Flavor(
-                vcups=row['flavor']['vcpus'],
+                vcpus=row['flavor']['vcpus'],
                 disk=row['flavor']['disk'],
                 ram=row['flavor']['ram'],
                 name=row['flavor']['name']
@@ -428,11 +421,7 @@ def fill(classifier_data_path, predictor_data_path):
             image=row['image'],
             host=row['host'],
             instance_id=row['instance_id'],
-            load_measured=row['load_measured'],
-            stop_time=datetime.datetime.strptime(row['start_time'],
-                                                 "%Y-%m-%dT%H:%M:%S.%fZ"),
-            start_time=datetime.datetime.strptime(row['start_time'],
-                                                  "%Y-%m-%dT%H:%M:%S.%fZ")
+            resource_usage=row['load_measured']
         )
 
         HostAggregate.create(
