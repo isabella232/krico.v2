@@ -53,12 +53,12 @@ CREATE TABLE krico.classifier_instance (
   flavor FROZEN<flavor>,
 );
 
-CREATE TABLE krico.classifier_statistic (
-  id uuid PRIMARY KEY,
-  category text,
-  name text,
+CREATE TABLE krico.monitor_sample (
+  id uuid,
+  instance_id text,
+  configuration_id text,
   metrics map<text,double>,
-  configuration_id text
+  PRIMARY KEY ((instance_id), id)
 );
 
 CREATE TABLE krico.classifier_network (

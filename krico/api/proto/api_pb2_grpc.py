@@ -49,6 +49,11 @@ class ApiStub(object):
         request_serializer=api__pb2.ImportMetricsFromSwanExperimentRequest.SerializeToString,
         response_deserializer=api__pb2.ImportMetricsFromSwanExperimentResponse.FromString,
         )
+    self.ImportMonitorSamplesFromSwanExperiment = channel.unary_unary(
+        '/Api/ImportMonitorSamplesFromSwanExperiment',
+        request_serializer=api__pb2.ImportMonitorSamplesFromSwanExperimentRequest.SerializeToString,
+        response_deserializer=api__pb2.ImportMonitorSamplesFromSwanExperimentResponse.FromString,
+        )
 
 
 class ApiServicer(object):
@@ -104,6 +109,13 @@ class ApiServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ImportMonitorSamplesFromSwanExperiment(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_ApiServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -141,6 +153,11 @@ def add_ApiServicer_to_server(servicer, server):
           servicer.ImportMetricsFromSwanExperiment,
           request_deserializer=api__pb2.ImportMetricsFromSwanExperimentRequest.FromString,
           response_serializer=api__pb2.ImportMetricsFromSwanExperimentResponse.SerializeToString,
+      ),
+      'ImportMonitorSamplesFromSwanExperiment': grpc.unary_unary_rpc_method_handler(
+          servicer.ImportMonitorSamplesFromSwanExperiment,
+          request_deserializer=api__pb2.ImportMonitorSamplesFromSwanExperimentRequest.FromString,
+          response_serializer=api__pb2.ImportMonitorSamplesFromSwanExperimentResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

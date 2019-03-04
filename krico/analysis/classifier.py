@@ -102,20 +102,20 @@ def classify(instance_id):
 
     bigdata
     """
-    instance = ClassifierInstance.objects.filter(
-        instance_id=instance_id).allow_filtering().first()
 
     monitor_samples = MonitorSample.objects.filter(
-        instance_id=instance_id.host_aggregate.configuration_id).all()
+        instance_id=instance_id).allow_filtering().all()
 
-    classifier = _load_classifier(instance.host_aggregate.configuration_id)
+    configuration_id = monitor_samples.first().configuration_id
+
+    classifier = _load_classifier(configuration_id)
 
     mean_load = prepare_mean_sample(monitor_samples, core.METRICS)
 
     prediction = classifier.predict(mean_load)
 
     log.info('Category predicted for {} is: {}({})'.format(
-        instance.instance_id,
+        instance_id,
         core.CATEGORIES[prediction],
         prediction
     ))

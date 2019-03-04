@@ -8,33 +8,19 @@ from krico.database import importer
 experiment_id = "experiment_id"
 
 
-class TestImportFromSwanExperiment(object):
-
-    @mock.patch('krico.database.importer.Metrics')
-    def test_if_throw_exception_when_no_metric(self, mock_metrics):
-        mock_metrics.get_by_experiment_id.return_value.count.return_value = 0
-        try:
-            importer.import_from_swan_experiment(experiment_id)
-        except Exception as e:
-            assert isinstance(e, NotEnoughMetricsError)
-
-    @mock.patch('krico.database.importer.Metrics')
-    def test_if_throw_exception_when_not_all_batches_with_metric_are_available(
-            self, mock_metrics):
-        mock_metrics.get_by_experiment_id.return_value.count.return_value =\
-            len(core.METRICS) - 1
-        try:
-            importer.import_from_swan_experiment(experiment_id)
-        except Exception as e:
-            assert isinstance(e, NotEnoughMetricsError)
+class TestImportMetricsFromSwanExperiment(object):
 
     @mock.patch('krico.database.importer.Metrics')
     def test_if_throw_exception_when_cannot_gather_basic_information(
             self, mock_metrics):
         mock_metrics.get_by_experiment_id.return_value.count.return_value =\
             len(core.METRICS*10)
+
+        mock_metrics.get_by_experiment_id.return_value.\
+            first.return_value.tags = {}
+
         try:
-            importer.import_from_swan_experiment(experiment_id)
+            importer.import_metrics_from_swan_experiment(experiment_id)
         except Exception as e:
             assert isinstance(e, NotFoundError)
 
@@ -162,3 +148,40 @@ class TestPrepareResourceUsage(object):
 
         for expect in expected:
             assert resource_usage[expect] == expected[expect]
+
+
+class TestImportMonitorSamplesFromSwanExperiment(object):
+
+    @mock.patch('krico.database.importer.Metrics')
+    def test_if_throw_exception_when_cannot_gather_basic_information(
+            self, mock_metrics):
+        mock_metrics.get_by_experiment_id.return_value.count.return_value =\
+            len(core.METRICS*10)
+
+        mock_metrics.get_by_experiment_id.return_value.\
+            first.return_value.tags = {}
+
+        try:
+            importer.import_monitor_samples_from_swan_experiment(experiment_id)
+        except Exception as e:
+            assert isinstance(e, NotFoundError)
+
+
+class TestCheckMetrics(object):
+
+    def test_if_throw_exception_when_no_metric(self):
+        try:
+            importer._check_metrics(0, 12)
+        except Exception as e:
+            assert isinstance(e, NotEnoughMetricsError)
+            return
+        assert False
+
+    def test_if_throw_exception_when_not_all_batches_with_metric_are_available(
+            self):
+        try:
+            importer._check_metrics(13, 12)
+        except Exception as e:
+            assert isinstance(e, NotEnoughMetricsError)
+            return
+        assert False
