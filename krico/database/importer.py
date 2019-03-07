@@ -151,9 +151,9 @@ def import_metrics_from_swan_experiment(experiment_id):
 
     try:
         _check_metrics(metric_count, metric_batch_size)
-    except Exception as e:
+    except NotEnoughMetricsError as e:
         log.error('For experiment "{0}": {1}'.format(experiment_id, e.message))
-        raise e
+        return
 
     # Count batch number.
     batch_count = int(metric_count) / metric_batch_size
@@ -276,9 +276,9 @@ def import_samples_from_swan_experiment(experiment_id):
 
     try:
         _check_metrics(metric_count, metric_batch_size)
-    except Exception as e:
+    except NotEnoughMetricsError as e:
         log.error('For experiment "{0}": {1}'.format(experiment_id, e.message))
-        raise e
+        return
 
     # Count batch number.
     batch_count = int(metric_count) / metric_batch_size
