@@ -5,7 +5,7 @@ DROP TABLE IF exists krico.host_aggregate;
 DROP TABLE IF exists krico.image;
 DROP TABLE IF exists krico.classifier_instance;
 DROP TABLE IF exists krico.classifier_network;
-DROP TABLE IF exists krico.classifier_statistic;
+DROP TABLE IF exists krico.sample;
 DROP TABLE IF exists krico.predictor_instance;
 DROP TABLE IF exists krico.predictor_network;
 DROP TYPE IF exists krico.host;
@@ -53,7 +53,7 @@ CREATE TABLE krico.classifier_instance (
   flavor FROZEN<flavor>,
 );
 
-CREATE TABLE krico.monitor_sample (
+CREATE TABLE krico.sample (
   id uuid,
   instance_id text,
   configuration_id text,

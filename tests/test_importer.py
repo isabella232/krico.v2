@@ -162,7 +162,7 @@ class TestImportMonitorSamplesFromSwanExperiment(object):
             first.return_value.tags = {}
 
         try:
-            importer.import_monitor_samples_from_swan_experiment(experiment_id)
+            importer.import_samples_from_swan_experiment(experiment_id)
         except Exception as e:
             assert isinstance(e, NotFoundError)
 

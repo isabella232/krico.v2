@@ -20,7 +20,7 @@ from krico.api.proto import api_pb2_grpc as api_service
 
 from krico.database import connect as connect_to_db
 from krico.database.importer import import_metrics_from_swan_experiment,\
-    import_monitor_samples_from_swan_experiment
+    import_samples_from_swan_experiment
 
 from krico import core
 from krico.core.exception import Error
@@ -65,8 +65,8 @@ class Api(api_service.ApiServicer):
         import_metrics_from_swan_experiment(request.experiment_id)
         return api_messages.ImportMetricsFromSwanExperimentResponse()
 
-    def ImportMonitorSamplesFromSwanExperiment(self, request, context):
-        import_monitor_samples_from_swan_experiment(request.instance_id)
+    def ImportSamplesFromSwanExperiment(self, request, context):
+        import_samples_from_swan_experiment(request.experiment_id)
         return api_messages.ImportMonitorSamplesFromSwanExperimentResponse()
 
 

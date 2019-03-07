@@ -1,7 +1,7 @@
 DROP TABLE IF exists krico.host_aggregate;
 DROP TABLE IF exists krico.image;
 DROP TABLE IF EXISTS krico.classifier_instance;
-DROP TABLE IF EXISTS krico.classifier_statistic;
+DROP TABLE IF EXISTS krico.sample;
 DROP TABLE IF EXISTS krico.classifier_network;
 DROP TABLE IF exists krico.predictor_instance;
 DROP TABLE IF exists krico.predictor_network;

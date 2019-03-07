@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\tapi.proto\"&\n\x0f\x43lassifyRequest\x12\x13\n\x0binstance_id\x18\x01 \x01(\t\")\n\x10\x43lassifyResponse\x12\x15\n\rclassified_as\x18\x01 \x01(\t\"j\n\x13PredictRequirements\x12\x13\n\x0b\x63pu_threads\x18\x01 \x01(\x01\x12\x11\n\tdisk_iops\x18\x02 \x01(\x01\x12\x19\n\x11network_bandwidth\x18\x03 \x01(\x01\x12\x10\n\x08ram_size\x18\x04 \x01(\x01\"q\n\x0ePredictRequest\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05image\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x03(\t\x12\x16\n\x0ehost_aggregate\x18\x04 \x01(\t\x12\x12\n\nallocation\x18\x05 \x01(\t\"=\n\x0fPredictResponse\x12*\n\x0crequirements\x18\x01 \x03(\x0b\x32\x14.PredictRequirements\"\x1a\n\x18RefreshClassifierRequest\"\x1b\n\x19RefreshClassifierResponse\"\x19\n\x17RefreshPredictorRequest\"\x1a\n\x18RefreshPredictorResponse\"\x19\n\x17RefreshInstancesRequest\"\x1a\n\x18RefreshInstancesResponse\"4\n\x10WorkloadCategory\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nparameters\x18\x02 \x03(\t\"\x1c\n\x1aWorkloadsCategoriesRequest\"N\n\x1bWorkloadsCategoriesResponse\x12/\n\x14workloads_categories\x18\x01 \x03(\x0b\x32\x11.WorkloadCategory\"?\n&ImportMetricsFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportMetricsFromSwanExperimentResponse\"F\n-ImportMonitorSamplesFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\"0\n.ImportMonitorSamplesFromSwanExperimentResponse2\xa6\x05\n\x03\x41pi\x12\x31\n\x08\x43lassify\x12\x10.ClassifyRequest\x1a\x11.ClassifyResponse\"\x00\x12.\n\x07Predict\x12\x0f.PredictRequest\x1a\x10.PredictResponse\"\x00\x12L\n\x11RefreshClassifier\x12\x19.RefreshClassifierRequest\x1a\x1a.RefreshClassifierResponse\"\x00\x12I\n\x10RefreshPredictor\x12\x18.RefreshPredictorRequest\x1a\x19.RefreshPredictorResponse\"\x00\x12I\n\x10RefreshInstances\x12\x18.RefreshInstancesRequest\x1a\x19.RefreshInstancesResponse\"\x00\x12R\n\x13WorkloadsCategories\x12\x1b.WorkloadsCategoriesRequest\x1a\x1c.WorkloadsCategoriesResponse\"\x00\x12v\n\x1fImportMetricsFromSwanExperiment\x12\'.ImportMetricsFromSwanExperimentRequest\x1a(.ImportMetricsFromSwanExperimentResponse\"\x00\x12\x8b\x01\n&ImportMonitorSamplesFromSwanExperiment\x12..ImportMonitorSamplesFromSwanExperimentRequest\x1a/.ImportMonitorSamplesFromSwanExperimentResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\tapi.proto\"&\n\x0f\x43lassifyRequest\x12\x13\n\x0binstance_id\x18\x01 \x01(\t\")\n\x10\x43lassifyResponse\x12\x15\n\rclassified_as\x18\x01 \x01(\t\"j\n\x13PredictRequirements\x12\x13\n\x0b\x63pu_threads\x18\x01 \x01(\x01\x12\x11\n\tdisk_iops\x18\x02 \x01(\x01\x12\x19\n\x11network_bandwidth\x18\x03 \x01(\x01\x12\x10\n\x08ram_size\x18\x04 \x01(\x01\"q\n\x0ePredictRequest\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05image\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x03(\t\x12\x16\n\x0ehost_aggregate\x18\x04 \x01(\t\x12\x12\n\nallocation\x18\x05 \x01(\t\"=\n\x0fPredictResponse\x12*\n\x0crequirements\x18\x01 \x03(\x0b\x32\x14.PredictRequirements\"\x1a\n\x18RefreshClassifierRequest\"\x1b\n\x19RefreshClassifierResponse\"\x19\n\x17RefreshPredictorRequest\"\x1a\n\x18RefreshPredictorResponse\"\x19\n\x17RefreshInstancesRequest\"\x1a\n\x18RefreshInstancesResponse\"4\n\x10WorkloadCategory\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nparameters\x18\x02 \x03(\t\"\x1c\n\x1aWorkloadsCategoriesRequest\"N\n\x1bWorkloadsCategoriesResponse\x12/\n\x14workloads_categories\x18\x01 \x03(\x0b\x32\x11.WorkloadCategory\"?\n&ImportMetricsFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportMetricsFromSwanExperimentResponse\"?\n&ImportSamplesFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportSamplesFromSwanExperimentResponse2\x90\x05\n\x03\x41pi\x12\x31\n\x08\x43lassify\x12\x10.ClassifyRequest\x1a\x11.ClassifyResponse\"\x00\x12.\n\x07Predict\x12\x0f.PredictRequest\x1a\x10.PredictResponse\"\x00\x12L\n\x11RefreshClassifier\x12\x19.RefreshClassifierRequest\x1a\x1a.RefreshClassifierResponse\"\x00\x12I\n\x10RefreshPredictor\x12\x18.RefreshPredictorRequest\x1a\x19.RefreshPredictorResponse\"\x00\x12I\n\x10RefreshInstances\x12\x18.RefreshInstancesRequest\x1a\x19.RefreshInstancesResponse\"\x00\x12R\n\x13WorkloadsCategories\x12\x1b.WorkloadsCategoriesRequest\x1a\x1c.WorkloadsCategoriesResponse\"\x00\x12v\n\x1fImportMetricsFromSwanExperiment\x12\'.ImportMetricsFromSwanExperimentRequest\x1a(.ImportMetricsFromSwanExperimentResponse\"\x00\x12v\n\x1fImportSamplesFromSwanExperiment\x12\'.ImportSamplesFromSwanExperimentRequest\x1a(.ImportSamplesFromSwanExperimentResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -521,15 +521,15 @@ _IMPORTMETRICSFROMSWANEXPERIMENTRESPONSE = _descriptor.Descriptor(
 )
 
 
-_IMPORTMONITORSAMPLESFROMSWANEXPERIMENTREQUEST = _descriptor.Descriptor(
-  name='ImportMonitorSamplesFromSwanExperimentRequest',
-  full_name='ImportMonitorSamplesFromSwanExperimentRequest',
+_IMPORTSAMPLESFROMSWANEXPERIMENTREQUEST = _descriptor.Descriptor(
+  name='ImportSamplesFromSwanExperimentRequest',
+  full_name='ImportSamplesFromSwanExperimentRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='experiment_id', full_name='ImportMonitorSamplesFromSwanExperimentRequest.experiment_id', index=0,
+      name='experiment_id', full_name='ImportSamplesFromSwanExperimentRequest.experiment_id', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -548,13 +548,13 @@ _IMPORTMONITORSAMPLESFROMSWANEXPERIMENTREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=821,
-  serialized_end=891,
+  serialized_end=884,
 )
 
 
-_IMPORTMONITORSAMPLESFROMSWANEXPERIMENTRESPONSE = _descriptor.Descriptor(
-  name='ImportMonitorSamplesFromSwanExperimentResponse',
-  full_name='ImportMonitorSamplesFromSwanExperimentResponse',
+_IMPORTSAMPLESFROMSWANEXPERIMENTRESPONSE = _descriptor.Descriptor(
+  name='ImportSamplesFromSwanExperimentResponse',
+  full_name='ImportSamplesFromSwanExperimentResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -571,8 +571,8 @@ _IMPORTMONITORSAMPLESFROMSWANEXPERIMENTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=893,
-  serialized_end=941,
+  serialized_start=886,
+  serialized_end=927,
 )
 
 _PREDICTRESPONSE.fields_by_name['requirements'].message_type = _PREDICTREQUIREMENTS
@@ -593,8 +593,8 @@ DESCRIPTOR.message_types_by_name['WorkloadsCategoriesRequest'] = _WORKLOADSCATEG
 DESCRIPTOR.message_types_by_name['WorkloadsCategoriesResponse'] = _WORKLOADSCATEGORIESRESPONSE
 DESCRIPTOR.message_types_by_name['ImportMetricsFromSwanExperimentRequest'] = _IMPORTMETRICSFROMSWANEXPERIMENTREQUEST
 DESCRIPTOR.message_types_by_name['ImportMetricsFromSwanExperimentResponse'] = _IMPORTMETRICSFROMSWANEXPERIMENTRESPONSE
-DESCRIPTOR.message_types_by_name['ImportMonitorSamplesFromSwanExperimentRequest'] = _IMPORTMONITORSAMPLESFROMSWANEXPERIMENTREQUEST
-DESCRIPTOR.message_types_by_name['ImportMonitorSamplesFromSwanExperimentResponse'] = _IMPORTMONITORSAMPLESFROMSWANEXPERIMENTRESPONSE
+DESCRIPTOR.message_types_by_name['ImportSamplesFromSwanExperimentRequest'] = _IMPORTSAMPLESFROMSWANEXPERIMENTREQUEST
+DESCRIPTOR.message_types_by_name['ImportSamplesFromSwanExperimentResponse'] = _IMPORTSAMPLESFROMSWANEXPERIMENTRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ClassifyRequest = _reflection.GeneratedProtocolMessageType('ClassifyRequest', (_message.Message,), dict(
@@ -709,19 +709,19 @@ ImportMetricsFromSwanExperimentResponse = _reflection.GeneratedProtocolMessageTy
   ))
 _sym_db.RegisterMessage(ImportMetricsFromSwanExperimentResponse)
 
-ImportMonitorSamplesFromSwanExperimentRequest = _reflection.GeneratedProtocolMessageType('ImportMonitorSamplesFromSwanExperimentRequest', (_message.Message,), dict(
-  DESCRIPTOR = _IMPORTMONITORSAMPLESFROMSWANEXPERIMENTREQUEST,
+ImportSamplesFromSwanExperimentRequest = _reflection.GeneratedProtocolMessageType('ImportSamplesFromSwanExperimentRequest', (_message.Message,), dict(
+  DESCRIPTOR = _IMPORTSAMPLESFROMSWANEXPERIMENTREQUEST,
   __module__ = 'api_pb2'
-  # @@protoc_insertion_point(class_scope:ImportMonitorSamplesFromSwanExperimentRequest)
+  # @@protoc_insertion_point(class_scope:ImportSamplesFromSwanExperimentRequest)
   ))
-_sym_db.RegisterMessage(ImportMonitorSamplesFromSwanExperimentRequest)
+_sym_db.RegisterMessage(ImportSamplesFromSwanExperimentRequest)
 
-ImportMonitorSamplesFromSwanExperimentResponse = _reflection.GeneratedProtocolMessageType('ImportMonitorSamplesFromSwanExperimentResponse', (_message.Message,), dict(
-  DESCRIPTOR = _IMPORTMONITORSAMPLESFROMSWANEXPERIMENTRESPONSE,
+ImportSamplesFromSwanExperimentResponse = _reflection.GeneratedProtocolMessageType('ImportSamplesFromSwanExperimentResponse', (_message.Message,), dict(
+  DESCRIPTOR = _IMPORTSAMPLESFROMSWANEXPERIMENTRESPONSE,
   __module__ = 'api_pb2'
-  # @@protoc_insertion_point(class_scope:ImportMonitorSamplesFromSwanExperimentResponse)
+  # @@protoc_insertion_point(class_scope:ImportSamplesFromSwanExperimentResponse)
   ))
-_sym_db.RegisterMessage(ImportMonitorSamplesFromSwanExperimentResponse)
+_sym_db.RegisterMessage(ImportSamplesFromSwanExperimentResponse)
 
 
 
@@ -731,8 +731,8 @@ _API = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=944,
-  serialized_end=1622,
+  serialized_start=930,
+  serialized_end=1586,
   methods=[
   _descriptor.MethodDescriptor(
     name='Classify',
@@ -798,12 +798,12 @@ _API = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='ImportMonitorSamplesFromSwanExperiment',
-    full_name='Api.ImportMonitorSamplesFromSwanExperiment',
+    name='ImportSamplesFromSwanExperiment',
+    full_name='Api.ImportSamplesFromSwanExperiment',
     index=7,
     containing_service=None,
-    input_type=_IMPORTMONITORSAMPLESFROMSWANEXPERIMENTREQUEST,
-    output_type=_IMPORTMONITORSAMPLESFROMSWANEXPERIMENTRESPONSE,
+    input_type=_IMPORTSAMPLESFROMSWANEXPERIMENTREQUEST,
+    output_type=_IMPORTSAMPLESFROMSWANEXPERIMENTRESPONSE,
     serialized_options=None,
   ),
 ])

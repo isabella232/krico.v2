@@ -9,7 +9,7 @@ from krico import core
 from krico.core.exception import NotEnoughMetricsError, NotFoundError
 from krico.database import\
     HostAggregate, ClassifierInstance, Host, Flavor, PredictorInstance, \
-    MonitorSample
+    Sample
 
 METRIC_NAMES_MAP = {
     'cputime': 'cpu:time',
@@ -258,8 +258,8 @@ def _check_metrics(metric_count, metric_batch_size):
             "Not all batches with metrics are available!")
 
 
-def import_monitor_samples_from_swan_experiment(experiment_id):
-    """Insert monitor samples from SWAN experiment.
+def import_samples_from_swan_experiment(experiment_id):
+    """Insert samples from SWAN experiment.
 
     Keyword arguments:
     ------------------
@@ -307,7 +307,7 @@ def import_monitor_samples_from_swan_experiment(experiment_id):
         for name in METRIC_NAMES_MAP.values():
             usage[name] = resource_usage[name][i]
 
-        MonitorSample(
+        Sample(
             id=uuid4(),
             instance_id=instance_id,
             configuration_id=configuration_id,
