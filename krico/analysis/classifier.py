@@ -9,9 +9,9 @@ import logging
 from krico.analysis.converter import prepare_mean_sample
 
 from krico import core
-
+from krico.core.exception import NotFoundError
 from krico.database \
-    import ClassifierInstance, MonitorSample, ClassifierNetwork, HostAggregate
+    import ClassifierInstance, Sample, ClassifierNetwork, HostAggregate
 
 log = logging.getLogger(__name__)
 
@@ -102,20 +102,25 @@ def classify(instance_id):
 
     bigdata
     """
-    instance = ClassifierInstance.objects.filter(
-        instance_id=instance_id).allow_filtering().first()
 
-    monitor_samples = MonitorSample.objects.filter(
-        instance_id=instance_id.host_aggregate.configuration_id).all()
+    samples = Sample.objects.filter(
+        instance_id=instance_id).allow_filtering().all()
 
-    classifier = _load_classifier(instance.host_aggregate.configuration_id)
+    configuration_id = samples.first().configuration_id
 
-    mean_load = prepare_mean_sample(monitor_samples, core.METRICS)
+    classifier = _load_classifier(configuration_id)
+
+    metrics = []
+
+    for sample in samples:
+        metrics.append(sample.metrics)
+
+    mean_load = prepare_mean_sample(metrics, core.METRICS)
 
     prediction = classifier.predict(mean_load)
 
     log.info('Category predicted for {} is: {}({})'.format(
-        instance.instance_id,
+        instance_id,
         core.CATEGORIES[prediction],
         prediction
     ))
@@ -136,7 +141,7 @@ def refresh():
 
         for category in core.CATEGORIES:
 
-            if _enough_samples(host_aggregate.configuration_id):
+            if _enough_samples(category, host_aggregate.configuration_id):
                 _create_and_save_classifier(
                     category, host_aggregate.configuration_id)
 
@@ -177,6 +182,11 @@ def _load_classifier(configuration_id):
             configuration_id=core.configuration
             ['classifier']['default_configuration_id']
         ).allow_filtering().first()
+
+    if not classifier:
+        raise(NotFoundError(
+            'Cannot find classifier network for "{}" configuration'.
+            format(configuration_id)))
 
     return pickle.loads(classifier.network)
 

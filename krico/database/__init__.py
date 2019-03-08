@@ -208,7 +208,7 @@ class ClassifierInstance(Model):
 
         for instance in instance_query:
             requirements = collections.OrderedDict(
-                sorted(instance.load_measured.items())
+                sorted(instance.resource_usage.items())
             )
             x.append(requirements.values())
             y.append(core.CATEGORIES.index(instance.category))
@@ -327,7 +327,7 @@ class PredictorNetwork(Model):
     network = columns.Blob()
 
 
-class MonitorSample(Model):
+class Sample(Model):
     """Cassandra Model that represents collected samples for classification.
 
     Variables:

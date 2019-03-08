@@ -8,7 +8,8 @@ from uuid import uuid4
 from krico import core
 from krico.core.exception import NotEnoughMetricsError, NotFoundError
 from krico.database import\
-    HostAggregate, ClassifierInstance, Host, Flavor, PredictorInstance
+    HostAggregate, ClassifierInstance, Host, Flavor, PredictorInstance, \
+    Sample
 
 METRIC_NAMES_MAP = {
     'cputime': 'cpu:time',
@@ -133,7 +134,7 @@ def _prepare_resource_usage(metric_batch_size, batch_count, metrics):
     return resource_usage
 
 
-def import_from_swan_experiment(experiment_id):
+def import_metrics_from_swan_experiment(experiment_id):
     """Insert metric from SWAN experiment.
 
     Keyword arguments:
@@ -143,20 +144,16 @@ def import_from_swan_experiment(experiment_id):
 
     # Get metric query.
     metrics = Metrics.get_by_experiment_id(experiment_id)
+
+    # Check metrics.
     metric_count = metrics.count()
-
-    # Check if metrics are available.
-    if metric_count <= 0:
-        raise NotEnoughMetricsError(
-            "No metrics found for experiment: {0}".format(experiment_id)
-        )
-
-    # Check if there are available all batches with metrics.
     metric_batch_size = len(core.METRICS)
-    if metric_count % metric_batch_size != 0:
-        raise NotEnoughMetricsError(
-            "Not all batches with metrics are available!"
-        )
+
+    try:
+        _check_metrics(metric_count, metric_batch_size)
+    except NotEnoughMetricsError as e:
+        log.error('For experiment "{0}": {1}'.format(experiment_id, e.message))
+        return
 
     # Count batch number.
     batch_count = int(metric_count) / metric_batch_size
@@ -218,7 +215,7 @@ def import_from_swan_experiment(experiment_id):
     resource_usage = _prepare_resource_usage(
         metric_batch_size, batch_count, metrics)
 
-    # Change metric names from SNAP to KRICO standards.
+    # Change metrics names from SNAP to KRICO standards.
     _remap_metrics_names(resource_usage)
 
     # Fill database.
@@ -247,4 +244,72 @@ def import_from_swan_experiment(experiment_id):
             image=image,
             parameters=parameters,
             resource_usage=usage
+        ).save()
+
+
+def _check_metrics(metric_count, metric_batch_size):
+    # Check if metrics are available.
+    if metric_count <= 0:
+        raise NotEnoughMetricsError("No metrics found!")
+
+    # Check if there are available all batches with metrics.
+    if metric_count % metric_batch_size != 0:
+        raise NotEnoughMetricsError(
+            "Not all batches with metrics are available!")
+
+
+def import_samples_from_swan_experiment(experiment_id):
+    """Insert samples from SWAN experiment.
+
+    Keyword arguments:
+    ------------------
+
+        experiment_id : string
+            Experiment id."""
+
+    # Get metric query.
+    metrics = Metrics.get_by_experiment_id(experiment_id)
+
+    # Check metrics.
+    metric_count = metrics.count()
+    metric_batch_size = len(core.METRICS)
+
+    try:
+        _check_metrics(metric_count, metric_batch_size)
+    except NotEnoughMetricsError as e:
+        log.error('For experiment "{0}": {1}'.format(experiment_id, e.message))
+        return
+
+    # Count batch number.
+    batch_count = int(metric_count) / metric_batch_size
+
+    # Gather information from first metric.
+    metric = metrics.first()
+
+    try:
+        instance_id = metric.tags['instance_id']
+        configuration_id = metric.tags['host_aggregate_configuration_id']
+    except KeyError as e:
+        raise NotFoundError(
+            'No basic parameters found: {}'.format(e.message))
+
+    # Get metrics.
+    resource_usage = _prepare_resource_usage(
+        metric_batch_size, batch_count, metrics)
+
+    # Change metrics names from SNAP to KRICO standards.
+    _remap_metrics_names(resource_usage)
+
+    # Fill database.
+    for i in range(0, batch_count):
+        # Calculate resources usage.
+        usage = {}
+        for name in METRIC_NAMES_MAP.values():
+            usage[name] = resource_usage[name][i]
+
+        Sample(
+            id=uuid4(),
+            instance_id=instance_id,
+            configuration_id=configuration_id,
+            metrics=usage
         ).save()
