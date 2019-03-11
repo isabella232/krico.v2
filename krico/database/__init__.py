@@ -225,10 +225,13 @@ class ClassifierNetwork(Model):
 
     configuration_id: Id of host aggregate.
 
-    network: Neural network model in bytes."""
+    network: Neural network model in bytes.
+
+    x_maxima: Maximal values of network input data."""
 
     configuration_id = columns.Text(primary_key=True)
     network = columns.Blob()
+    x_maxima = columns.Map(columns.Integer, columns.Double)
 
 
 class PredictorInstance(Model):

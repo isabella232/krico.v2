@@ -63,7 +63,8 @@ CREATE TABLE krico.sample (
 
 CREATE TABLE krico.classifier_network (
   configuration_id text PRIMARY KEY,
-  network blob
+  network blob,
+  x_maxima map<int,double>
 );
 
 CREATE TABLE krico.predictor_instance (
