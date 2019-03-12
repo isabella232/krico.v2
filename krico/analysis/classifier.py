@@ -189,6 +189,7 @@ def _create_and_save_classifier(category, configuration_id):
             network=f.read(),
             x_maxima=dict(enumerate(classifier.x_maxima))
         )
+        f.close()
 
     os.remove(h5fd_file_name)
 
