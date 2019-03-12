@@ -1,11 +1,11 @@
 """Requirements prediction component."""
 
 import collections
+import os
 from itertools import izip as zip
 import keras
 import numpy
 import logging
-import pickle
 import uuid
 
 from krico.analysis.converter import prepare_prediction_for_host_aggregate
@@ -21,18 +21,26 @@ log = logging.getLogger(__name__)
 
 
 class _Predictor(object):
-    def __init__(self, category, image):
+    def __init__(self, category, image, x_maxima=None):
         self.image = image
         self.category = category
-        self.x_maxima = []
+        self.x_maxima = x_maxima
         self._create_model()
         self._compile_model()
 
     def train(self, data):
-        # Save maxima needed for prediction input
-        self.x_maxima = numpy.amax(data[0], axis=0)
 
-        # Data normalization
+        train_data_x_maxima = numpy.amax(data[0], axis=0)
+
+        # Check and save maxima needed for prediction input.
+        if self.x_maxima is None:
+            self.x_maxima = train_data_x_maxima
+        else:
+            for i in range(self.x_maxima):
+                if self.x_maxima[i] < train_data_x_maxima[i]:
+                    self.x_maxima[i] = train_data_x_maxima[i]
+
+        # Data normalization.
         x = keras.utils.normalize(data[0])
 
         y = data[1]
@@ -190,14 +198,24 @@ def _create_predictor(category, image=None):
         image = core.configuration['predictor']['default_image']
 
     predictor = _Predictor(category, image)
+
     predictor.train(learning_set)
 
-    PredictorNetwork.create(
-        id=uuid.uuid4(),
-        image=image,
-        category=category,
-        network=pickle.dumps(predictor)
-    )
+    h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+
+    predictor.model.save(h5fd_file_name)
+
+    with open(h5fd_file_name, mode='rb') as f:
+        PredictorNetwork.create(
+            id=uuid.uuid4(),
+            image=image,
+            category=category,
+            model=f.read(),
+            x_maxima=dict(enumerate(predictor.x_maxima))
+        )
+        f.close()
+
+    os.remove(h5fd_file_name)
 
     return predictor
 
@@ -211,7 +229,18 @@ def _get_predictor(category, image):
     ).allow_filtering().first()
 
     if image_predictor:
-        return pickle.loads(image_predictor.network)
+        x_maxima = numpy.array(dict(image_predictor.x_maxima).values())
+
+        predictor = _Predictor(category, image, x_maxima)
+
+        h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+        with open(h5fd_file_name, mode='wb') as f:
+            f.write(image_predictor.model)
+            f.close()
+
+        predictor.model = keras.models.load_model(h5fd_file_name)
+
+        return predictor
 
     # If not, check if can create
     if _enough_samples(category, image):
@@ -224,7 +253,18 @@ def _get_predictor(category, image):
     ).allow_filtering().first()
 
     if category_predictor:
-        return pickle.loads(category_predictor.network)
+        x_maxima = numpy.array(dict(category_predictor.x_maxima).values())
+
+        predictor = _Predictor(category, image, x_maxima)
+
+        h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+        with open(h5fd_file_name, mode='wb') as f:
+            f.write(image_predictor.model)
+            f.close()
+
+        predictor.model = keras.models.load_model(h5fd_file_name)
+
+        return predictor
 
     # If not, check if can create
     if _enough_samples(category):

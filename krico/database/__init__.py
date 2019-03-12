@@ -225,12 +225,12 @@ class ClassifierNetwork(Model):
 
     configuration_id: Id of host aggregate.
 
-    network: Neural network model in bytes.
+    model: Neural network model in bytes.
 
     x_maxima: Maximal values of network input data."""
 
     configuration_id = columns.Text(primary_key=True)
-    network = columns.Blob()
+    model = columns.Blob()
     x_maxima = columns.Map(columns.Integer, columns.Double)
 
 
@@ -321,13 +321,16 @@ class PredictorNetwork(Model):
 
     category: Name of workload category.
 
-    network: Neural network model in bytes."""
+    model: Neural network model in bytes.
+
+    x_maxima: Maximal values of network input data."""
 
     id = columns.UUID(primary_key=True)
     configuration_id = columns.Text()
     image = columns.Text()
     category = columns.Text()
-    network = columns.Blob()
+    model = columns.Blob()
+    x_maxima = columns.Map(columns.Integer(), columns.Double())
 
 
 class Sample(Model):
