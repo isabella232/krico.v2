@@ -242,6 +242,7 @@ def import_metrics_from_swan_experiment(experiment_id):
         PredictorInstance(
             id=uuid4(),
             image=image,
+            category=category,
             parameters=parameters,
             resource_usage=usage
         ).save()
