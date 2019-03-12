@@ -67,7 +67,7 @@ class Api(api_service.ApiServicer):
 
     def ImportSamplesFromSwanExperiment(self, request, context):
         import_samples_from_swan_experiment(request.experiment_id)
-        return api_messages.ImportMonitorSamplesFromSwanExperimentResponse()
+        return api_messages.ImportSamplesFromSwanExperimentResponse()
 
 
 class ApiWorker(Thread):
