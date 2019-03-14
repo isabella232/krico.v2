@@ -21,16 +21,19 @@ log = logging.getLogger(__name__)
 
 
 class _Predictor(object):
-    def __init__(self, category, image, x_maxima=None):
+    def __init__(self, category, image, x_maxima=None, y_maxima=None):
         self.image = image
         self.category = category
         self.x_maxima = x_maxima
+        self.y_maxima = y_maxima
         self._create_model()
         self._compile_model()
 
     def train(self, data):
 
         train_data_x_maxima = numpy.amax(data[0], axis=0)
+
+        train_data_y_maxima = numpy.amax(data[1], axis=0)
 
         # Check and save maxima needed for prediction input.
         if self.x_maxima is None:
@@ -40,10 +43,16 @@ class _Predictor(object):
                 if self.x_maxima[i] < train_data_x_maxima[i]:
                     self.x_maxima[i] = train_data_x_maxima[i]
 
+        if self.y_maxima is None:
+            self.y_maxima = train_data_y_maxima
+        else:
+            for i in range(self.y_maxima):
+                if self.y_maxima[i] < train_data_y_maxima[i]:
+                    self.y_maxima[i] = train_data_y_maxima[i]
+
         # Data normalization.
         x = keras.utils.normalize(data[0])
-
-        y = data[1]
+        y = keras.utils.normalize(data[1])
 
         epochs = len(data[0])
 
@@ -57,15 +66,26 @@ class _Predictor(object):
         )
 
     def predict(self, parameters):
-        parameters = collections.OrderedDict(sorted(parameters.items()))
+        # Alphabetical order metrics.
+        ordered_parameters = collections.OrderedDict(sorted(parameters.items()))
 
-        # Prediction operates on matrix (ndim=2)
-        data = numpy.array(parameters.values(), ndmin=2)
+        # Prediction operates on two dimension matrix.
+        numpy_array_parameters = numpy.array(
+            ordered_parameters.values(), ndmin=2)
 
-        # Normalize input
-        data = numpy.true_divide(data, self.x_maxima)
+        # Normalize input.
+        input_data = numpy.divide(
+            numpy_array_parameters,
+            self.x_maxima,
+            where=self.x_maxima != 0)
 
-        return self.model.predict(data)[0]
+        # Predict.
+        prediction = self.model.predict(input_data)[0]
+
+        # Denormalize output.
+        output = numpy.multiply(prediction, self.y_maxima)
+
+        return output
 
     def _create_model(self):
         input_size = len(core.PARAMETERS[self.category])
@@ -79,9 +99,13 @@ class _Predictor(object):
             keras.layers.Dense(output_size)
         ])
 
-    def _compile_model(self, learning_rate=0.05, momentum=0.9):
-        optimizer = keras.optimizers.SGD(learning_rate, momentum)
-        self.model.compile(loss='mean_squared_error', optimizer=optimizer)
+    def _compile_model(self, learning_rate=0.05, momentum=0.9, decay=1e-4):
+        optimizer = keras.optimizers.SGD(learning_rate, momentum, decay)
+        self.model.compile(
+            loss='mean_squared_error',
+            optimizer=optimizer,
+            metrics=['accuracy']
+        )
         log.info('Model compiled')
 
 
@@ -157,11 +181,19 @@ def predict(category, image, parameters,
     predictions = []
 
     for aggregate in aggregates:
-        prediction = \
-            prepare_prediction_for_host_aggregate(
-                dict(aggregate),
-                requirements,
-                allocation_mode)
+        if allocation_mode is None:
+            prediction = \
+                prepare_prediction_for_host_aggregate(
+                    dict(aggregate),
+                    requirements)
+        else:
+            prediction = \
+                prepare_prediction_for_host_aggregate(
+                    dict(aggregate),
+                    requirements,
+                    allocation_mode
+                )
+
         predictions.append(prediction)
 
     return predictions
@@ -211,7 +243,8 @@ def _create_predictor(category, image=None):
             image=image,
             category=category,
             model=f.read(),
-            x_maxima=dict(enumerate(predictor.x_maxima))
+            x_maxima=dict(enumerate(predictor.x_maxima)),
+            y_maxima=dict(enumerate(predictor.y_maxima))
         )
         f.close()
 
@@ -231,7 +264,9 @@ def _get_predictor(category, image):
     if image_predictor:
         x_maxima = numpy.array(dict(image_predictor.x_maxima).values())
 
-        predictor = _Predictor(category, image, x_maxima)
+        y_maxima = numpy.array(dict(image_predictor.y_maxima).values())
+
+        predictor = _Predictor(category, image, x_maxima, y_maxima)
 
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
@@ -239,6 +274,8 @@ def _get_predictor(category, image):
             f.close()
 
         predictor.model = keras.models.load_model(h5fd_file_name)
+
+        os.remove(h5fd_file_name)
 
         return predictor
 
@@ -255,7 +292,9 @@ def _get_predictor(category, image):
     if category_predictor:
         x_maxima = numpy.array(dict(category_predictor.x_maxima).values())
 
-        predictor = _Predictor(category, image, x_maxima)
+        y_maxima = numpy.array(dict(category_predictor.y_maxima).values())
+
+        predictor = _Predictor(category, image, x_maxima, y_maxima)
 
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
@@ -263,6 +302,8 @@ def _get_predictor(category, image):
             f.close()
 
         predictor.model = keras.models.load_model(h5fd_file_name)
+
+        os.remove(h5fd_file_name)
 
         return predictor
 

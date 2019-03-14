@@ -186,7 +186,7 @@ def _create_and_save_classifier(category, configuration_id):
     with open(h5fd_file_name, mode='rb') as f:
         ClassifierNetwork.create(
             configuration_id=configuration_id,
-            network=f.read(),
+            model=f.read(),
             x_maxima=dict(enumerate(classifier.x_maxima))
         )
         f.close()

@@ -323,7 +323,9 @@ class PredictorNetwork(Model):
 
     model: Neural network model in bytes.
 
-    x_maxima: Maximal values of network input data."""
+    x_maxima: Maximal values of network input data.
+
+    y_maxima: Maximal values of network output data."""
 
     id = columns.UUID(primary_key=True)
     configuration_id = columns.Text()
@@ -331,6 +333,7 @@ class PredictorNetwork(Model):
     category = columns.Text()
     model = columns.Blob()
     x_maxima = columns.Map(columns.Integer(), columns.Double())
+    y_maxima = columns.Map(columns.Integer(), columns.Double())
 
 
 class Sample(Model):

@@ -83,6 +83,7 @@ CREATE TABLE krico.predictor_network (
   image text,
   category text,
   model blob,
-  x_maxima map<int,double>
+  x_maxima map<int,double>,
+  y_maxima map<int,double>
 );
 
