@@ -218,7 +218,7 @@ def _load_classifier(configuration_id):
     h5fd_file_name = 'model_{}.h5'.format(configuration_id)
 
     with open(h5fd_file_name, mode='wb') as f:
-        f.write(classifier_query.network)
+        f.write(classifier_query.model)
         f.close()
 
     model = keras.models.load_model(h5fd_file_name)
