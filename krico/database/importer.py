@@ -9,7 +9,7 @@ from krico import core
 from krico.core.exception import NotEnoughMetricsError, NotFoundError
 from krico.database import\
     HostAggregate, ClassifierInstance, Host, Flavor, PredictorInstance, \
-    Sample
+    Sample, Image
 
 METRIC_NAMES_MAP = {
     'cputime': 'cpu:time',
@@ -25,6 +25,11 @@ METRIC_NAMES_MAP = {
     'txpackets': 'network:packets:send',
     'rxpackets': 'network:packets:receive'
 }
+
+CPU_TIME_SCALE = 1.0e9  # ns -> s
+RAM_USED_SCALE = 1024.0 ** 2.0  # kB -> GB
+BANDWIDTH_SCALE = 1024.0 ** 2.0  # B -> MB
+
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +82,7 @@ class Metrics(Model):
 
         return Metrics.objects().filter(
             tags__contains=experiment_id
-        ).allow_filtering()
+        ).allow_filtering().limit(None)
 
 
 def _get_parameters(metric, category):
@@ -132,6 +137,67 @@ def _prepare_resource_usage(metric_batch_size, batch_count, metrics):
         resource_usage[metric.ns].append(metric.doubleval)
 
     return resource_usage
+
+
+def _transform_cpu_time(metric, prev):
+    return (prev - metric) / (CPU_TIME_SCALE * core.INTERVAL)
+
+
+def _transform_ram_used(metric, prev):
+    return metric / RAM_USED_SCALE
+
+
+def _transform_bandwidth(metric, prev):
+    return (prev - metric) / (BANDWIDTH_SCALE * core.INTERVAL)
+
+
+def _transform_prev(metric, prev):
+    return (prev - metric) / core.INTERVAL
+
+
+def _transform_interval(metric, prev):
+    return metric / core.INTERVAL
+
+
+def _transform_metric(metric, key, prev):
+
+    metric_transform_map = {
+        'cpu:time': _transform_cpu_time,
+        'ram:used': _transform_ram_used,
+        'cpu:cache:references': _transform_interval,
+        'cpu:cache:misses': _transform_interval,
+        'disk:bandwidth:read': _transform_bandwidth,
+        'disk:bandwidth:write': _transform_bandwidth,
+        'disk:operations:read': _transform_prev,
+        'disk:operations:write': _transform_prev,
+        'network:bandwidth:send': _transform_bandwidth,
+        'network:bandwidth:receive': _transform_bandwidth,
+        'network:packets:send': _transform_prev,
+        'network:packets:receive': _transform_prev
+    }
+
+    return metric_transform_map[key](metric, prev)
+
+
+def _transform_resource_usage(usage, length):
+
+    prev_usage = {}
+    transformed_usage = {}
+
+    for key in usage.keys():
+        transformed_usage[key] = list()
+        prev_usage[key] = usage[key][0]
+
+    for i in range(1, length):
+
+        for key in prev_usage.keys():
+            transformed_metric = _transform_metric(usage[key][i],
+                                                   key,
+                                                   prev_usage[key])
+            transformed_usage[key].append(transformed_metric)
+            prev_usage[key] = usage[key][i]
+
+    return transformed_usage
 
 
 def import_metrics_from_swan_experiment(experiment_id):
@@ -218,8 +284,15 @@ def import_metrics_from_swan_experiment(experiment_id):
     # Change metrics names from SNAP to KRICO standards.
     _remap_metrics_names(resource_usage)
 
+    # Transform metrics.
+    resource_usage = _transform_resource_usage(resource_usage, batch_count)
+
+    # Skip one metric row because of transformation.
+    batch_count = batch_count - 1
+
     # Fill database.
     for i in range(0, batch_count):
+
         # Calculate resources usage.
         usage = {}
         for name in METRIC_NAMES_MAP.values():
@@ -244,7 +317,13 @@ def import_metrics_from_swan_experiment(experiment_id):
             image=image,
             category=category,
             parameters=parameters,
-            resource_usage=usage
+            requirements=_get_requirements(usage),
+            instance_id=instance_id
+        ).save()
+
+        Image(
+            image=image,
+            category=category
         ).save()
 
 

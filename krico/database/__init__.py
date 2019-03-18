@@ -327,10 +327,8 @@ class PredictorNetwork(Model):
 
     y_maxima: Maximal values of network output data."""
 
-    id = columns.UUID(primary_key=True)
-    configuration_id = columns.Text()
-    image = columns.Text()
-    category = columns.Text()
+    image = columns.Text(primary_key=True)
+    category = columns.Text(primary_key=True)
     model = columns.Blob()
     x_maxima = columns.Map(columns.Integer(), columns.Double())
     y_maxima = columns.Map(columns.Integer(), columns.Double())

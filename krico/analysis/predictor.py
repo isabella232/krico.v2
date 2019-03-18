@@ -6,7 +6,6 @@ from itertools import izip as zip
 import keras
 import numpy
 import logging
-import uuid
 
 from krico.analysis.converter import prepare_prediction_for_host_aggregate
 
@@ -67,7 +66,8 @@ class _Predictor(object):
 
     def predict(self, parameters):
         # Alphabetical order metrics.
-        ordered_parameters = collections.OrderedDict(sorted(parameters.items()))
+        ordered_parameters = collections.OrderedDict(
+            sorted(parameters.items()))
 
         # Prediction operates on two dimension matrix.
         numpy_array_parameters = numpy.array(
@@ -239,7 +239,6 @@ def _create_predictor(category, image=None):
 
     with open(h5fd_file_name, mode='rb') as f:
         PredictorNetwork.create(
-            id=uuid.uuid4(),
             image=image,
             category=category,
             model=f.read(),
@@ -257,9 +256,9 @@ def _get_predictor(category, image):
 
     # Start with check if there's specific predictor for image
     image_predictor = PredictorNetwork.objects.filter(
-        image=image,
-        category=category
-    ).allow_filtering().first()
+        category=category,
+        image=image
+    ).get()
 
     if image_predictor:
         x_maxima = numpy.array(dict(image_predictor.x_maxima).values())
@@ -287,7 +286,7 @@ def _get_predictor(category, image):
     category_predictor = PredictorNetwork.objects.filter(
         image=core.configuration['predictor']['default_image'],
         category=category
-    ).allow_filtering().first()
+    ).get()
 
     if category_predictor:
         x_maxima = numpy.array(dict(category_predictor.x_maxima).values())
@@ -298,7 +297,7 @@ def _get_predictor(category, image):
 
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
-            f.write(image_predictor.model)
+            f.write(category_predictor.model)
             f.close()
 
         predictor.model = keras.models.load_model(h5fd_file_name)

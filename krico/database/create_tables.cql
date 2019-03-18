@@ -78,12 +78,11 @@ CREATE TABLE krico.predictor_instance (
 );
 
 CREATE TABLE krico.predictor_network (
-  id uuid PRIMARY KEY,
-  configuration_id text,
   image text,
   category text,
   model blob,
   x_maxima map<int,double>,
-  y_maxima map<int,double>
+  y_maxima map<int,double>,
+  PRIMARY KEY ((category, image))
 );
 

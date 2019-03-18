@@ -139,3 +139,6 @@ logger:
     disabled:
       root:
         handlers: [empty]
+
+metric:
+  interval: 1

@@ -28,5 +28,5 @@ class TestClassifier(object):
         assert classifier.model
         assert classifier.model.built is True
         assert classifier.configuration_id is "configuration_id"
-        assert isinstance(classifier.x_maxima, list)
+        assert hasattr(classifier, 'x_maxima')
         assert len(classifier.model.layers) == 3

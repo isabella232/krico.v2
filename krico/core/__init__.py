@@ -17,6 +17,8 @@ REQUIREMENTS = []
 # Names of Virtual Machine usage metrics needed in classification process.
 METRICS = []
 
+INTERVAL = 0
+
 
 def init(config_path):
     """Loads KRICO configuration.
@@ -52,5 +54,8 @@ def init(config_path):
 
     global METRICS
     METRICS = sorted(configuration['classifier']['metrics'])
+
+    global INTERVAL
+    INTERVAL = int(configuration['metric']['interval'])
 
     return configuration
