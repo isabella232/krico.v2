@@ -17,11 +17,14 @@ log = logging.getLogger(__name__)
 
 
 class _Classifier(object):
-    def __init__(self, configuration_id, x_maxima=None):
+    def __init__(self, configuration_id, x_maxima=None, model=None):
         self.configuration_id = configuration_id
         self.x_maxima = x_maxima
-        self._create_model()
-        self._compile_model()
+        self.model = model
+
+        if not model:
+            self._create_model()
+            self._compile_model()
 
     def train(self, data):
 
@@ -212,18 +215,19 @@ def _load_classifier(configuration_id):
 
     x_maxima = numpy.array(dict(classifier_query.x_maxima).values())
 
-    classifier = _Classifier(
-        configuration_id=configuration_id,
-        x_maxima=x_maxima
-    )
-
     h5fd_file_name = 'model_{}.h5'.format(configuration_id)
 
     with open(h5fd_file_name, mode='wb') as f:
         f.write(classifier_query.network)
         f.close()
 
-    classifier.model = keras.models.load_model(h5fd_file_name)
+    model = keras.models.load_model(h5fd_file_name)
+
+    classifier = _Classifier(
+        configuration_id=configuration_id,
+        x_maxima=x_maxima,
+        model=model
+    )
 
     os.remove(h5fd_file_name)
 

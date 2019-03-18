@@ -20,13 +20,17 @@ log = logging.getLogger(__name__)
 
 
 class _Predictor(object):
-    def __init__(self, category, image, x_maxima=None, y_maxima=None):
+    def __init__(
+            self, category, image, x_maxima=None, y_maxima=None, model=None):
         self.image = image
         self.category = category
         self.x_maxima = x_maxima
         self.y_maxima = y_maxima
-        self._create_model()
-        self._compile_model()
+        self.model = model
+
+        if not model:
+            self._create_model()
+            self._compile_model()
 
     def train(self, data):
 
@@ -265,16 +269,22 @@ def _get_predictor(category, image):
 
         y_maxima = numpy.array(dict(image_predictor.y_maxima).values())
 
-        predictor = _Predictor(category, image, x_maxima, y_maxima)
-
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
             f.write(image_predictor.model)
             f.close()
 
-        predictor.model = keras.models.load_model(h5fd_file_name)
+        model = keras.models.load_model(h5fd_file_name)
 
         os.remove(h5fd_file_name)
+
+        predictor = _Predictor(
+            category=category,
+            image=image,
+            x_maxima=x_maxima,
+            y_maxima=y_maxima,
+            model=model
+        )
 
         return predictor
 
@@ -293,16 +303,22 @@ def _get_predictor(category, image):
 
         y_maxima = numpy.array(dict(category_predictor.y_maxima).values())
 
-        predictor = _Predictor(category, image, x_maxima, y_maxima)
-
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
             f.write(category_predictor.model)
             f.close()
 
-        predictor.model = keras.models.load_model(h5fd_file_name)
+        model = keras.models.load_model(h5fd_file_name)
 
         os.remove(h5fd_file_name)
+
+        predictor = _Predictor(
+            category=category,
+            image=image,
+            x_maxima=x_maxima,
+            y_maxima=y_maxima,
+            model=model
+        )
 
         return predictor
 
