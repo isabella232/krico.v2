@@ -1,7 +1,6 @@
 import os
 
 import mock
-import pickle
 
 import krico.analysis.predictor
 
