@@ -58,4 +58,8 @@ def init(config_path):
     global INTERVAL
     INTERVAL = int(configuration['metric']['interval'])
 
+    # Interval cannot be zero or negative number.
+    if INTERVAL <= 0:
+        INTERVAL = 1
+
     return configuration

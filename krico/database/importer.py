@@ -139,24 +139,32 @@ def _prepare_resource_usage(metric_batch_size, batch_count, metrics):
     return resource_usage
 
 
+def _check_transformed_metric(metric):
+    if metric > 0.0:
+        return metric
+    return 0.0
+
+
 def _transform_cpu_time(metric, prev):
-    return (prev - metric) / (CPU_TIME_SCALE * core.INTERVAL)
+    return _check_transformed_metric(
+        (prev - metric) / (CPU_TIME_SCALE * core.INTERVAL))
 
 
 def _transform_ram_used(metric, prev):
-    return metric / RAM_USED_SCALE
+    return _check_transformed_metric(metric / RAM_USED_SCALE)
 
 
 def _transform_bandwidth(metric, prev):
-    return (prev - metric) / (BANDWIDTH_SCALE * core.INTERVAL)
+    return _check_transformed_metric(
+        (prev - metric) / (BANDWIDTH_SCALE * core.INTERVAL))
 
 
-def _transform_prev(metric, prev):
-    return (prev - metric) / core.INTERVAL
+def _transform_to_delta(metric, prev):
+    return _check_transformed_metric((prev - metric) / core.INTERVAL)
 
 
 def _transform_interval(metric, prev):
-    return metric / core.INTERVAL
+    return _check_transformed_metric(metric / core.INTERVAL)
 
 
 def _transform_metric(metric, key, prev):
@@ -168,12 +176,12 @@ def _transform_metric(metric, key, prev):
         'cpu:cache:misses': _transform_interval,
         'disk:bandwidth:read': _transform_bandwidth,
         'disk:bandwidth:write': _transform_bandwidth,
-        'disk:operations:read': _transform_prev,
-        'disk:operations:write': _transform_prev,
+        'disk:operations:read': _transform_to_delta,
+        'disk:operations:write': _transform_to_delta,
         'network:bandwidth:send': _transform_bandwidth,
         'network:bandwidth:receive': _transform_bandwidth,
-        'network:packets:send': _transform_prev,
-        'network:packets:receive': _transform_prev
+        'network:packets:send': _transform_to_delta,
+        'network:packets:receive': _transform_to_delta
     }
 
     return metric_transform_map[key](metric, prev)
