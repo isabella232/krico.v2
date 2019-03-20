@@ -249,7 +249,6 @@ def _create_predictor(category, image=None):
             x_maxima=dict(enumerate(predictor.x_maxima)),
             y_maxima=dict(enumerate(predictor.y_maxima))
         )
-        f.close()
 
     os.remove(h5fd_file_name)
 
@@ -272,7 +271,6 @@ def _get_predictor(category, image):
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
             f.write(image_predictor.model)
-            f.close()
 
         model = keras.models.load_model(h5fd_file_name)
 
@@ -306,7 +304,6 @@ def _get_predictor(category, image):
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
         with open(h5fd_file_name, mode='wb') as f:
             f.write(category_predictor.model)
-            f.close()
 
         model = keras.models.load_model(h5fd_file_name)
 

@@ -192,7 +192,6 @@ def _create_and_save_classifier(category, configuration_id):
             model=f.read(),
             x_maxima=dict(enumerate(classifier.x_maxima))
         )
-        f.close()
 
     os.remove(h5fd_file_name)
 
@@ -219,7 +218,6 @@ def _load_classifier(configuration_id):
 
     with open(h5fd_file_name, mode='wb') as f:
         f.write(classifier_query.model)
-        f.close()
 
     model = keras.models.load_model(h5fd_file_name)
 
