@@ -1,12 +1,11 @@
 """Requirements prediction component."""
 
 import collections
+import os
 from itertools import izip as zip
 import keras
 import numpy
 import logging
-import pickle
-import uuid
 
 from krico.analysis.converter import prepare_prediction_for_host_aggregate
 
@@ -21,21 +20,42 @@ log = logging.getLogger(__name__)
 
 
 class _Predictor(object):
-    def __init__(self, category, image):
+    def __init__(
+            self, category, image, x_maxima=None, y_maxima=None, model=None):
         self.image = image
         self.category = category
-        self.x_maxima = []
-        self._create_model()
-        self._compile_model()
+        self.x_maxima = x_maxima
+        self.y_maxima = y_maxima
+        self.model = model
+
+        if not model:
+            self._create_model()
+            self._compile_model()
 
     def train(self, data):
-        # Save maxima needed for prediction input
-        self.x_maxima = numpy.amax(data[0], axis=0)
 
-        # Data normalization
+        train_data_x_maxima = numpy.amax(data[0], axis=0)
+
+        train_data_y_maxima = numpy.amax(data[1], axis=0)
+
+        # Check and save maxima needed for prediction input.
+        if self.x_maxima is None:
+            self.x_maxima = train_data_x_maxima
+        else:
+            for i in range(self.x_maxima):
+                if self.x_maxima[i] < train_data_x_maxima[i]:
+                    self.x_maxima[i] = train_data_x_maxima[i]
+
+        if self.y_maxima is None:
+            self.y_maxima = train_data_y_maxima
+        else:
+            for i in range(self.y_maxima):
+                if self.y_maxima[i] < train_data_y_maxima[i]:
+                    self.y_maxima[i] = train_data_y_maxima[i]
+
+        # Data normalization.
         x = keras.utils.normalize(data[0])
-
-        y = data[1]
+        y = keras.utils.normalize(data[1])
 
         epochs = len(data[0])
 
@@ -49,15 +69,27 @@ class _Predictor(object):
         )
 
     def predict(self, parameters):
-        parameters = collections.OrderedDict(sorted(parameters.items()))
+        # Alphabetical order metrics.
+        ordered_parameters = collections.OrderedDict(
+            sorted(parameters.items()))
 
-        # Prediction operates on matrix (ndim=2)
-        data = numpy.array(parameters.values(), ndmin=2)
+        # Prediction operates on two dimension matrix.
+        numpy_array_parameters = numpy.array(
+            ordered_parameters.values(), ndmin=2)
 
-        # Normalize input
-        data = numpy.true_divide(data, self.x_maxima)
+        # Normalize input.
+        input_data = numpy.divide(
+            numpy_array_parameters,
+            self.x_maxima,
+            where=self.x_maxima != 0)
 
-        return self.model.predict(data)[0]
+        # Predict.
+        prediction = self.model.predict(input_data)[0]
+
+        # Denormalize output.
+        output = numpy.multiply(prediction, self.y_maxima)
+
+        return output
 
     def _create_model(self):
         input_size = len(core.PARAMETERS[self.category])
@@ -71,14 +103,18 @@ class _Predictor(object):
             keras.layers.Dense(output_size)
         ])
 
-    def _compile_model(self, learning_rate=0.05, momentum=0.9):
-        optimizer = keras.optimizers.SGD(learning_rate, momentum)
-        self.model.compile(loss='mean_squared_error', optimizer=optimizer)
+    def _compile_model(self, learning_rate=0.05, momentum=0.9, decay=1e-4):
+        optimizer = keras.optimizers.SGD(learning_rate, momentum, decay)
+        self.model.compile(
+            loss='mean_squared_error',
+            optimizer=optimizer,
+            metrics=['accuracy']
+        )
         log.info('Model compiled')
 
 
 def predict(category, image, parameters,
-            configuration_id=None, allocation_mode=None):
+            configuration_id="", allocation_mode=""):
     """Predict requirements for specific workload.
 
     Keyword arguments:
@@ -149,11 +185,19 @@ def predict(category, image, parameters,
     predictions = []
 
     for aggregate in aggregates:
-        prediction = \
-            prepare_prediction_for_host_aggregate(
-                dict(aggregate),
-                requirements,
-                allocation_mode)
+        if allocation_mode == "":
+            prediction = \
+                prepare_prediction_for_host_aggregate(
+                    dict(aggregate),
+                    requirements)
+        else:
+            prediction = \
+                prepare_prediction_for_host_aggregate(
+                    dict(aggregate),
+                    requirements,
+                    allocation_mode
+                )
+
         predictions.append(prediction)
 
     return predictions
@@ -190,14 +234,23 @@ def _create_predictor(category, image=None):
         image = core.configuration['predictor']['default_image']
 
     predictor = _Predictor(category, image)
+
     predictor.train(learning_set)
 
-    PredictorNetwork.create(
-        id=uuid.uuid4(),
-        image=image,
-        category=category,
-        network=pickle.dumps(predictor)
-    )
+    h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+
+    predictor.model.save(h5fd_file_name)
+
+    with open(h5fd_file_name, mode='rb') as f:
+        PredictorNetwork.create(
+            image=image,
+            category=category,
+            model=f.read(),
+            x_maxima=dict(enumerate(predictor.x_maxima)),
+            y_maxima=dict(enumerate(predictor.y_maxima))
+        )
+
+    os.remove(h5fd_file_name)
 
     return predictor
 
@@ -206,12 +259,32 @@ def _get_predictor(category, image):
 
     # Start with check if there's specific predictor for image
     image_predictor = PredictorNetwork.objects.filter(
-        image=image,
-        category=category
-    ).allow_filtering().first()
+        category=category,
+        image=image
+    ).get()
 
     if image_predictor:
-        return pickle.loads(image_predictor.network)
+        x_maxima = numpy.array(dict(image_predictor.x_maxima).values())
+
+        y_maxima = numpy.array(dict(image_predictor.y_maxima).values())
+
+        h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+        with open(h5fd_file_name, mode='wb') as f:
+            f.write(image_predictor.model)
+
+        model = keras.models.load_model(h5fd_file_name)
+
+        os.remove(h5fd_file_name)
+
+        predictor = _Predictor(
+            category=category,
+            image=image,
+            x_maxima=x_maxima,
+            y_maxima=y_maxima,
+            model=model
+        )
+
+        return predictor
 
     # If not, check if can create
     if _enough_samples(category, image):
@@ -221,10 +294,30 @@ def _get_predictor(category, image):
     category_predictor = PredictorNetwork.objects.filter(
         image=core.configuration['predictor']['default_image'],
         category=category
-    ).allow_filtering().first()
+    ).get()
 
     if category_predictor:
-        return pickle.loads(category_predictor.network)
+        x_maxima = numpy.array(dict(category_predictor.x_maxima).values())
+
+        y_maxima = numpy.array(dict(category_predictor.y_maxima).values())
+
+        h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+        with open(h5fd_file_name, mode='wb') as f:
+            f.write(category_predictor.model)
+
+        model = keras.models.load_model(h5fd_file_name)
+
+        os.remove(h5fd_file_name)
+
+        predictor = _Predictor(
+            category=category,
+            image=image,
+            x_maxima=x_maxima,
+            y_maxima=y_maxima,
+            model=model
+        )
+
+        return predictor
 
     # If not, check if can create
     if _enough_samples(category):

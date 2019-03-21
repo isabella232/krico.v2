@@ -1,5 +1,6 @@
+import os
+
 import mock
-import pickle
 
 import krico.analysis.predictor
 
@@ -47,8 +48,12 @@ class TestPredictor(object):
                                                    image).category == category
 
     def test_if_predictor_have_x_maxima(self):
-        assert krico.analysis.predictor._Predictor(category,
-                                                   image).x_maxima == []
+        assert hasattr(
+            krico.analysis.predictor._Predictor(category, image), 'x_maxima')
+
+    def test_if_predictor_have_y_maxima(self):
+        assert hasattr(
+            krico.analysis.predictor._Predictor(category, image), 'y_maxima')
 
 
 class TestGetPredictor(object):
@@ -56,19 +61,30 @@ class TestGetPredictor(object):
     @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_return_specific_image_network(self, mock_predictor_network):
 
-        predictor = krico.analysis.predictor.PredictorNetwork
-        predictor.image = image
-        predictor.category = category
-        predictor.network = pickle.dumps(
-            krico.analysis.predictor._Predictor(category, image))
+        predictor_row = krico.analysis.predictor.PredictorNetwork
+        predictor_row.image = image
+        predictor_row.category = category
 
-        mock_predictor_network.objects.filter.return_value.\
-            allow_filtering.return_value.first.return_value = \
-            predictor
+        predictor = krico.analysis.predictor._Predictor(category, image)
+        h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
 
-        assert isinstance(
-            krico.analysis.predictor._get_predictor(category, image),
-            krico.analysis.predictor._Predictor)
+        predictor.model.save(h5fd_file_name)
+
+        with open(h5fd_file_name, mode='rb') as f:
+            predictor_row.model = f.read()
+            f.close()
+        os.remove(h5fd_file_name)
+
+        mock_predictor_network.objects.filter.return_value.get.return_value = \
+            predictor_row
+
+        test_predictor = \
+            krico.analysis.predictor._get_predictor(category, image)
+
+        assert test_predictor.image == predictor_row.image
+        assert test_predictor.category == predictor_row.category
+        assert test_predictor.model.metrics_names ==\
+            predictor.model.metrics_names
 
     @mock.patch('krico.analysis.predictor._create_predictor')
     @mock.patch('krico.analysis.predictor._enough_samples')
@@ -77,7 +93,7 @@ class TestGetPredictor(object):
                                               mock_enough_samples,
                                               mock_create_predictor):
         mock_predictor_network.objects.filter.return_value.\
-            allow_filtering.return_value.first.return_value = None
+            get.return_value = None
 
         mock_enough_samples.return_value = True
 
@@ -93,21 +109,33 @@ class TestGetPredictor(object):
     def test_if_return_category_network(self, mock_predictor_network,
                                         mock_enough_samples):
 
-        predictor = krico.analysis.predictor.PredictorNetwork
-        predictor.image = image
-        predictor.category = category
-        predictor.network = pickle.dumps(
-            krico.analysis.predictor._Predictor(category, image))
+        predictor_row = krico.analysis.predictor.PredictorNetwork
+        predictor_row.image = image
+        predictor_row.category = category
+
+        predictor = krico.analysis.predictor._Predictor(category, image)
+        h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
+
+        predictor.model.save(h5fd_file_name)
+
+        with open(h5fd_file_name, mode='rb') as f:
+            predictor_row.model = f.read()
+            f.close()
+        os.remove(h5fd_file_name)
 
         mock_predictor_network.objects.filter.return_value.\
-            allow_filtering.return_value.first.side_effect = \
-            [None, predictor]
+            get.side_effect = \
+            [None, predictor_row]
 
         mock_enough_samples.return_value = False
 
-        assert isinstance(
-            krico.analysis.predictor._get_predictor(category, image),
-            krico.analysis.predictor._Predictor)
+        test_predictor = \
+            krico.analysis.predictor._get_predictor(category, image)
+
+        assert test_predictor.image == predictor_row.image
+        assert test_predictor.category == predictor_row.category
+        assert test_predictor.model.metrics_names ==\
+            predictor.model.metrics_names
 
     @mock.patch('krico.analysis.predictor._create_predictor')
     @mock.patch('krico.analysis.predictor._enough_samples')
@@ -115,8 +143,8 @@ class TestGetPredictor(object):
     def test_if_create_category_network(self, mock_predictor_network,
                                         mock_enough_samples,
                                         mock_create_predictor):
-        mock_predictor_network.objects.filter.return_value.allow_filtering.\
-            return_value.first.return_value = None
+        mock_predictor_network.objects.filter.return_value.get.return_value =\
+            None
 
         mock_enough_samples.side_effect = [False, True]
 
@@ -131,8 +159,8 @@ class TestGetPredictor(object):
     @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_raise_exception(self, mock_predictor_network,
                                 mock_enough_samples):
-        mock_predictor_network.objects.filter.return_value.\
-            allow_filtering.return_value.first.return_value = None
+        mock_predictor_network.objects.filter.return_value.get.return_value =\
+            None
         mock_enough_samples.return_value = False
 
         try:

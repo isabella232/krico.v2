@@ -1,7 +1,7 @@
 """Workload classification component."""
 
 import collections
-import pickle
+import os
 import keras
 import numpy
 import logging
@@ -17,15 +17,26 @@ log = logging.getLogger(__name__)
 
 
 class _Classifier(object):
-    def __init__(self, configuration_id):
+    def __init__(self, configuration_id, x_maxima=None, model=None):
         self.configuration_id = configuration_id
-        self.x_maxima = []
-        self._create_model()
-        self._compile_model()
+        self.x_maxima = x_maxima
+        self.model = model
+
+        if not model:
+            self._create_model()
+            self._compile_model()
 
     def train(self, data):
-        # Save maxima needed for prediction input
-        self.x_maxima = numpy.amax(data[0], axis=0)
+
+        train_data_x_maxima = numpy.amax(data[0], axis=0)
+
+        # Check and save maxima needed for prediction input
+        if self.x_maxima is None:
+            self.x_maxima = train_data_x_maxima
+        else:
+            for i in range(self.x_maxima):
+                if self.x_maxima[i] < train_data_x_maxima[i]:
+                    self.x_maxima[i] = train_data_x_maxima[i]
 
         # Data normalization
         x = keras.utils.normalize(data[0])
@@ -106,6 +117,11 @@ def classify(instance_id):
     samples = Sample.objects.filter(
         instance_id=instance_id).allow_filtering().all()
 
+    if not samples:
+        log.error('Not enought samples for "{}" instance classification'
+                  .format(instance_id))
+        return
+
     configuration_id = samples.first().configuration_id
 
     classifier = _load_classifier(configuration_id)
@@ -155,40 +171,65 @@ def _create_and_save_classifier(category, configuration_id):
     learning_set = ClassifierInstance.\
         get_classifier_learning_set(category, configuration_id)
 
-    classifier = ClassifierNetwork.objects.filter(
+    classifier = _Classifier(configuration_id)
+
+    classifier_query = ClassifierNetwork.objects.filter(
         configuration_id=configuration_id
     ).allow_filtering().first()
 
-    if not classifier:
-        classifier = _Classifier(configuration_id)
-    else:
-        classifier = pickle.load(classifier.network)
+    if classifier_query:
+        classifier.model = keras.models.load_model(classifier_query.network)
 
     classifier.train(learning_set)
 
-    ClassifierNetwork.create(
-        configuration_id=configuration_id,
-        network=pickle.dumps(classifier)
-    )
+    h5fd_file_name = 'model_{}.h5'.format(configuration_id)
+
+    classifier.model.save(h5fd_file_name)
+
+    with open(h5fd_file_name, mode='rb') as f:
+        ClassifierNetwork.create(
+            configuration_id=configuration_id,
+            model=f.read(),
+            x_maxima=dict(enumerate(classifier.x_maxima))
+        )
+
+    os.remove(h5fd_file_name)
 
 
 def _load_classifier(configuration_id):
-    classifier = ClassifierNetwork.objects.filter(
+    classifier_query = ClassifierNetwork.objects.filter(
         configuration_id=configuration_id
     ).allow_filtering().first()
 
-    if not classifier:
-        classifier = ClassifierNetwork.objects.filter(
+    if not classifier_query:
+        classifier_query = ClassifierNetwork.objects.filter(
             configuration_id=core.configuration
             ['classifier']['default_configuration_id']
         ).allow_filtering().first()
 
-    if not classifier:
+    if not classifier_query:
         raise(NotFoundError(
             'Cannot find classifier network for "{}" configuration'.
             format(configuration_id)))
 
-    return pickle.loads(classifier.network)
+    x_maxima = numpy.array(dict(classifier_query.x_maxima).values())
+
+    h5fd_file_name = 'model_{}.h5'.format(configuration_id)
+
+    with open(h5fd_file_name, mode='wb') as f:
+        f.write(classifier_query.model)
+
+    model = keras.models.load_model(h5fd_file_name)
+
+    classifier = _Classifier(
+        configuration_id=configuration_id,
+        x_maxima=x_maxima,
+        model=model
+    )
+
+    os.remove(h5fd_file_name)
+
+    return classifier
 
 
 def _enough_samples(category, configuration_id):

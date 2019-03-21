@@ -39,11 +39,11 @@ class TestPreparePredictionForHostAggregate(object):
         (dict({'cpu': {'threads': 100}, 'ram': {'size': 100},
                'disk': {'size': 100}}),
          dict({'cpu_threads': 10, 'ram_size': 10, 'disk': 10}),
-         dict({'vcpus': 100, 'ram': 92160, 'disk': 45})),
+         dict({'vcpus': 100, 'ram': 90, 'disk': 45})),
         (dict({'cpu': {'threads': 21.10}, 'ram': {'size': 21.10},
                'disk': {'size': 21.10}}),
          dict({'cpu_threads': 10, 'ram_size': 10, 'disk': 10}),
-         dict({'vcpus': 21, 'ram': 18432, 'disk': 9}))
+         dict({'vcpus': 21, 'ram': 18, 'disk': 9}))
     ])
     def test_give_max_values_if_allocation_mode_is_set_as_exclusive(
             self, aggregate, requirements, expected):
@@ -58,7 +58,7 @@ class TestPreparePredictionForHostAggregate(object):
         (dict({'cpu': {'threads': 100}, 'ram': {'size': 100},
                'disk': {'size': 100}}),
          dict({'cpu_threads': 10, 'ram_size': 10, 'disk': 10}),
-         dict({'vcpus': 10, 'ram': 10240, 'disk': 10}))
+         dict({'vcpus': 10, 'ram': 10, 'disk': 10}))
     ])
     def test_set_shared_mode_if_none_allocation_is_provided(
             self, aggregate, requirements, expected):

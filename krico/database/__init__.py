@@ -84,7 +84,7 @@ class HostAggregate(Model):
     disk = columns.Map(columns.Text(), columns.Integer())
 
     @staticmethod
-    def get_host_aggregates(configuration_id=None):
+    def get_host_aggregates(configuration_id=""):
         """Return host aggregates from database.
 
         When configuration id is provides, returns host aggregates for specific
@@ -98,6 +98,10 @@ class HostAggregate(Model):
         Returns:
         --------
         host_aggregates: list of HostAggregate objects."""
+
+        if not isinstance(configuration_id, str):
+            raise TypeError(
+                "Parameter configuration_id should be type of string!")
 
         if configuration_id:
             return HostAggregate.objects.filter(
@@ -225,10 +229,13 @@ class ClassifierNetwork(Model):
 
     configuration_id: Id of host aggregate.
 
-    network: Neural network model in bytes."""
+    model: Neural network model in bytes.
+
+    x_maxima: Maximal values of network input data."""
 
     configuration_id = columns.Text(primary_key=True)
-    network = columns.Blob()
+    model = columns.Blob()
+    x_maxima = columns.Map(columns.Integer, columns.Double)
 
 
 class PredictorInstance(Model):
@@ -318,13 +325,17 @@ class PredictorNetwork(Model):
 
     category: Name of workload category.
 
-    network: Neural network model in bytes."""
+    model: Neural network model in bytes.
 
-    id = columns.UUID(primary_key=True)
-    configuration_id = columns.Text()
-    image = columns.Text()
-    category = columns.Text()
-    network = columns.Blob()
+    x_maxima: Maximal values of network input data.
+
+    y_maxima: Maximal values of network output data."""
+
+    image = columns.Text(primary_key=True)
+    category = columns.Text(primary_key=True)
+    model = columns.Blob()
+    x_maxima = columns.Map(columns.Integer(), columns.Double())
+    y_maxima = columns.Map(columns.Integer(), columns.Double())
 
 
 class Sample(Model):

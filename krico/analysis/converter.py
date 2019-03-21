@@ -58,7 +58,7 @@ def prepare_prediction_for_host_aggregate(
     flavor_ram_max = int(
         aggregate['ram']['size'] *
         core.configuration['converter']['flavor']['free']['ram']
-    ) * 1024
+    )
 
     flavor_disk_max = int(
         aggregate['disk']['size'] *
@@ -67,7 +67,7 @@ def prepare_prediction_for_host_aggregate(
     if allocation == \
             core.configuration['converter']['allocation_mode']['shared']:
         flavor_vcpus = int(math.ceil(requirements['cpu_threads']))
-        flavor_ram = int(math.ceil(requirements['ram_size'])) * 1024
+        flavor_ram = int(math.ceil(requirements['ram_size']))
         flavor_disk = int(math.ceil(requirements['disk']))
 
         if flavor_vcpus > flavor_vcpus_max or \
@@ -98,7 +98,7 @@ def prepare_prediction_for_host_aggregate(
     prediction['flavor'] = dict()
     prediction['flavor']['name'] = 'krico-{}c-{}m-{}d'.format(
         flavor_vcpus,
-        flavor_ram / 1024,
+        flavor_ram,
         flavor_disk
     )
 

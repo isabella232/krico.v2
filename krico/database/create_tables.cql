@@ -40,10 +40,10 @@ CREATE TABLE krico.image (
 );
 
 CREATE TABLE krico.classifier_instance (
-  id uuid PRIMARY KEY,
+  id uuid,
   name text,
-  configuration_id text PRIMARY KEY,
-  category text PRIMARY KEY,
+  configuration_id text,
+  category text,
   parameters map<text,double>,
   host_aggregate FROZEN<host>,
   image text,
@@ -51,6 +51,7 @@ CREATE TABLE krico.classifier_instance (
   instance_id text,
   resource_usage map<text,double>,
   flavor FROZEN<flavor>,
+  PRIMARY KEY ((configuration_id, category), id)
 );
 
 CREATE TABLE krico.sample (
@@ -63,7 +64,8 @@ CREATE TABLE krico.sample (
 
 CREATE TABLE krico.classifier_network (
   configuration_id text PRIMARY KEY,
-  network blob
+  model blob,
+  x_maxima map<int,double>
 );
 
 CREATE TABLE krico.predictor_instance (
@@ -76,10 +78,11 @@ CREATE TABLE krico.predictor_instance (
 );
 
 CREATE TABLE krico.predictor_network (
-  id uuid PRIMARY KEY,
-  configuration_id text,
   image text,
   category text,
-  network blob
+  model blob,
+  x_maxima map<int,double>,
+  y_maxima map<int,double>,
+  PRIMARY KEY ((category, image))
 );
 
