@@ -36,14 +36,71 @@ class Api(api_service.ApiServicer):
         return api_messages.ClassifyResponse(classified_as=classified_as)
 
     def Predict(self, request, context):
-        requirements = predictor.predict(
+
+        configuration_id = ""
+        allocation_mode = ""
+
+        if request.configuration_id:
+            configuration_id = request.configuration_id
+
+        if request.allocation_mode:
+            allocation_mode = request.allocation_mode
+
+        predictions = predictor.predict(
             category=request.category,
             image=request.image,
             parameters=request.parameters,
-            configuration_id=request.configuration_id,
-            allocation_mode=request.allocation
+            configuration_id=configuration_id,
+            allocation_mode=allocation_mode
         )
-        return api_messages.PredictResponse(requirements=requirements)
+
+        requirements = []
+        flavors = []
+        host_aggregates = []
+
+        for prediction in predictions:
+
+            requirements.append(
+                api_messages.PredictRequirements(
+                    cpu_threads=prediction['requirements']['cpu_threads'],
+                    disk_iops=prediction['requirements']['disk_iops'],
+                    network_bandwidth=
+                    prediction['requirements']['network_bandwidth'],
+                    ram_size=prediction['requirements']['ram_size']))
+
+            flavors.append(
+                api_messages.PredictFlavor(
+                    disk=prediction['flavor']['disk'],
+                    ram=prediction['flavor']['ram'],
+                    vcpus=prediction['flavor']['vcpus'],
+                    name=prediction['flavor']['name']
+                )
+            )
+
+            host_aggregates.append(
+                api_messages.PredictHostAggregate(
+                    cpu=api_messages.PredictHostAggregateCPU(
+                        performance=prediction
+                        ['host_aggregate']['cpu']['performance'],
+                        threads=prediction['host_aggregate']['cpu']['threads']
+                    ),
+                    disk=api_messages.PredictHostAggregateDisk(
+                        iops=prediction['host_aggregate']['disk']['iops'],
+                        size=prediction['host_aggregate']['disk']['size']
+                    ),
+                    ram=api_messages.PredictHostAggregateRAM(
+                        bandwidth=prediction
+                        ['host_aggregate']['ram']['bandwidth'],
+                        size=prediction['host_aggregate']['ram']['size']
+                    )
+                )
+            )
+
+        return api_messages.PredictResponse(
+            requirements=requirements,
+            flavors=flavors,
+            host_aggregates=host_aggregates
+        )
 
     def RefreshClassifier(self, request, context):
         classifier.refresh()
