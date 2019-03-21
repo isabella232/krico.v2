@@ -61,9 +61,9 @@ class TestGetPredictor(object):
     @mock.patch('krico.analysis.predictor.PredictorNetwork')
     def test_if_return_specific_image_network(self, mock_predictor_network):
 
-        predictor_query = krico.analysis.predictor.PredictorNetwork
-        predictor_query.image = image
-        predictor_query.category = category
+        predictor_row = krico.analysis.predictor.PredictorNetwork
+        predictor_row.image = image
+        predictor_row.category = category
 
         predictor = krico.analysis.predictor._Predictor(category, image)
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
@@ -71,18 +71,18 @@ class TestGetPredictor(object):
         predictor.model.save(h5fd_file_name)
 
         with open(h5fd_file_name, mode='rb') as f:
-            predictor_query.model = f.read()
+            predictor_row.model = f.read()
             f.close()
         os.remove(h5fd_file_name)
 
         mock_predictor_network.objects.filter.return_value.get.return_value = \
-            predictor_query
+            predictor_row
 
         test_predictor = \
             krico.analysis.predictor._get_predictor(category, image)
 
-        assert test_predictor.image == predictor_query.image
-        assert test_predictor.category == predictor_query.category
+        assert test_predictor.image == predictor_row.image
+        assert test_predictor.category == predictor_row.category
         assert test_predictor.model.metrics_names ==\
             predictor.model.metrics_names
 
@@ -109,9 +109,9 @@ class TestGetPredictor(object):
     def test_if_return_category_network(self, mock_predictor_network,
                                         mock_enough_samples):
 
-        predictor_query = krico.analysis.predictor.PredictorNetwork
-        predictor_query.image = image
-        predictor_query.category = category
+        predictor_row = krico.analysis.predictor.PredictorNetwork
+        predictor_row.image = image
+        predictor_row.category = category
 
         predictor = krico.analysis.predictor._Predictor(category, image)
         h5fd_file_name = 'model_{}_{}.h5'.format(category, image)
@@ -119,21 +119,21 @@ class TestGetPredictor(object):
         predictor.model.save(h5fd_file_name)
 
         with open(h5fd_file_name, mode='rb') as f:
-            predictor_query.model = f.read()
+            predictor_row.model = f.read()
             f.close()
         os.remove(h5fd_file_name)
 
         mock_predictor_network.objects.filter.return_value.\
             get.side_effect = \
-            [None, predictor_query]
+            [None, predictor_row]
 
         mock_enough_samples.return_value = False
 
         test_predictor = \
             krico.analysis.predictor._get_predictor(category, image)
 
-        assert test_predictor.image == predictor_query.image
-        assert test_predictor.category == predictor_query.category
+        assert test_predictor.image == predictor_row.image
+        assert test_predictor.category == predictor_row.category
         assert test_predictor.model.metrics_names ==\
             predictor.model.metrics_names
 

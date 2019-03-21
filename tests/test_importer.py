@@ -218,33 +218,3 @@ class TestTransformResourceUsage(object):
     def test_if_return_not_negative_results(self, usage, length, expected):
         test_resource_usage = importer._transform_resource_usage(usage, length)
         assert test_resource_usage == expected
-
-    @pytest.mark.parametrize(
-        'usage,length,expected', [
-            (({'cpu:time': [-2.0, -1.0],
-               'ram:used': [-2.0, -1.0],
-               'cpu:cache:references': [-2.0, -1.0],
-               'cpu:cache:misses': [-2.0, -1.0],
-               'disk:bandwidth:read': [-2.0, -1.0],
-               'disk:bandwidth:write': [-2.0, -1.0],
-               'disk:operations:read': [-2.0, -1.0],
-               'disk:operations:write': [-2.0, -1.0],
-               'network:bandwidth:send': [-2.0, -1.0],
-               'network:bandwidth:receive': [-2.0, -1.0],
-               'network:packets:send': [-2.0, -1.0],
-               'network:packets:receive': [-2.0, -1.0]}), 2,
-             {'cpu:time': [0.0],
-              'ram:used': [0.0],
-              'cpu:cache:references': [0.0],
-              'cpu:cache:misses': [0.0],
-              'disk:bandwidth:read': [0.0],
-              'disk:bandwidth:write': [0.0],
-              'disk:operations:read': [0.0],
-              'disk:operations:write': [0.0],
-              'network:bandwidth:send': [0.0],
-              'network:bandwidth:receive': [0.0],
-              'network:packets:send': [0.0],
-              'network:packets:receive': [0.0]})])
-    def test_if_expected_results(self, usage, length, expected):
-        test_resource_usage = importer._transform_resource_usage(usage, length)
-        assert test_resource_usage == expected

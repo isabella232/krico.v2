@@ -196,6 +196,7 @@ def _transform_resource_usage(usage, length):
         transformed_usage[key] = list()
         prev_usage[key] = usage[key][0]
 
+    # We need to get previous usage that's why start from index 1.
     for i in range(1, length):
 
         for key in prev_usage.keys():
