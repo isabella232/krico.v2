@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\tapi.proto\"&\n\x0f\x43lassifyRequest\x12\x13\n\x0binstance_id\x18\x01 \x01(\t\")\n\x10\x43lassifyResponse\x12\x15\n\rclassified_as\x18\x01 \x01(\t\"j\n\x13PredictRequirements\x12\x13\n\x0b\x63pu_threads\x18\x01 \x01(\x01\x12\x11\n\tdisk_iops\x18\x02 \x01(\x01\x12\x19\n\x11network_bandwidth\x18\x03 \x01(\x01\x12\x10\n\x08ram_size\x18\x04 \x01(\x01\"q\n\x0ePredictRequest\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05image\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x03(\t\x12\x16\n\x0ehost_aggregate\x18\x04 \x01(\t\x12\x12\n\nallocation\x18\x05 \x01(\t\"=\n\x0fPredictResponse\x12*\n\x0crequirements\x18\x01 \x03(\x0b\x32\x14.PredictRequirements\"\x1a\n\x18RefreshClassifierRequest\"\x1b\n\x19RefreshClassifierResponse\"\x19\n\x17RefreshPredictorRequest\"\x1a\n\x18RefreshPredictorResponse\"\x19\n\x17RefreshInstancesRequest\"\x1a\n\x18RefreshInstancesResponse\"4\n\x10WorkloadCategory\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nparameters\x18\x02 \x03(\t\"\x1c\n\x1aWorkloadsCategoriesRequest\"N\n\x1bWorkloadsCategoriesResponse\x12/\n\x14workloads_categories\x18\x01 \x03(\x0b\x32\x11.WorkloadCategory\"?\n&ImportMetricsFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportMetricsFromSwanExperimentResponse\"?\n&ImportSamplesFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportSamplesFromSwanExperimentResponse2\x90\x05\n\x03\x41pi\x12\x31\n\x08\x43lassify\x12\x10.ClassifyRequest\x1a\x11.ClassifyResponse\"\x00\x12.\n\x07Predict\x12\x0f.PredictRequest\x1a\x10.PredictResponse\"\x00\x12L\n\x11RefreshClassifier\x12\x19.RefreshClassifierRequest\x1a\x1a.RefreshClassifierResponse\"\x00\x12I\n\x10RefreshPredictor\x12\x18.RefreshPredictorRequest\x1a\x19.RefreshPredictorResponse\"\x00\x12I\n\x10RefreshInstances\x12\x18.RefreshInstancesRequest\x1a\x19.RefreshInstancesResponse\"\x00\x12R\n\x13WorkloadsCategories\x12\x1b.WorkloadsCategoriesRequest\x1a\x1c.WorkloadsCategoriesResponse\"\x00\x12v\n\x1fImportMetricsFromSwanExperiment\x12\'.ImportMetricsFromSwanExperimentRequest\x1a(.ImportMetricsFromSwanExperimentResponse\"\x00\x12v\n\x1fImportSamplesFromSwanExperiment\x12\'.ImportSamplesFromSwanExperimentRequest\x1a(.ImportSamplesFromSwanExperimentResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\tapi.proto\"&\n\x0f\x43lassifyRequest\x12\x13\n\x0binstance_id\x18\x01 \x01(\t\")\n\x10\x43lassifyResponse\x12\x15\n\rclassified_as\x18\x01 \x01(\t\"j\n\x13PredictRequirements\x12\x13\n\x0b\x63pu_threads\x18\x01 \x01(\x01\x12\x11\n\tdisk_iops\x18\x02 \x01(\x01\x12\x19\n\x11network_bandwidth\x18\x03 \x01(\x01\x12\x10\n\x08ram_size\x18\x04 \x01(\x01\"G\n\rPredictFlavor\x12\x0c\n\x04\x64isk\x18\x01 \x01(\r\x12\x0b\n\x03ram\x18\x02 \x01(\r\x12\r\n\x05vcpus\x18\x03 \x01(\r\x12\x0c\n\x04name\x18\x04 \x01(\t\"?\n\x17PredictHostAggregateCPU\x12\x13\n\x0bperformance\x18\x01 \x01(\r\x12\x0f\n\x07threads\x18\x02 \x01(\r\"6\n\x18PredictHostAggregateDisk\x12\x0c\n\x04iops\x18\x01 \x01(\r\x12\x0c\n\x04size\x18\x02 \x01(\r\":\n\x17PredictHostAggregateRAM\x12\x11\n\tbandwidth\x18\x01 \x01(\r\x12\x0c\n\x04size\x18\x02 \x01(\r\"\x8d\x01\n\x14PredictHostAggregate\x12%\n\x03\x63pu\x18\x01 \x01(\x0b\x32\x18.PredictHostAggregateCPU\x12\'\n\x04\x64isk\x18\x02 \x01(\x0b\x32\x19.PredictHostAggregateDisk\x12%\n\x03ram\x18\x03 \x01(\x0b\x32\x18.PredictHostAggregateRAM\"\xcc\x01\n\x0ePredictRequest\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05image\x18\x02 \x01(\t\x12\x33\n\nparameters\x18\x03 \x03(\x0b\x32\x1f.PredictRequest.ParametersEntry\x12\x18\n\x10\x63onfiguration_id\x18\x04 \x01(\t\x12\x17\n\x0f\x61llocation_mode\x18\x05 \x01(\t\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"\x8e\x01\n\x0fPredictResponse\x12*\n\x0crequirements\x18\x01 \x03(\x0b\x32\x14.PredictRequirements\x12\x1f\n\x07\x66lavors\x18\x02 \x03(\x0b\x32\x0e.PredictFlavor\x12.\n\x0fhost_aggregates\x18\x03 \x03(\x0b\x32\x15.PredictHostAggregate\"\x1a\n\x18RefreshClassifierRequest\"\x1b\n\x19RefreshClassifierResponse\"\x19\n\x17RefreshPredictorRequest\"\x1a\n\x18RefreshPredictorResponse\"\x19\n\x17RefreshInstancesRequest\"\x1a\n\x18RefreshInstancesResponse\"4\n\x10WorkloadCategory\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nparameters\x18\x02 \x03(\t\"\x1c\n\x1aWorkloadsCategoriesRequest\"N\n\x1bWorkloadsCategoriesResponse\x12/\n\x14workloads_categories\x18\x01 \x03(\x0b\x32\x11.WorkloadCategory\"?\n&ImportMetricsFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportMetricsFromSwanExperimentResponse\"?\n&ImportSamplesFromSwanExperimentRequest\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\")\n\'ImportSamplesFromSwanExperimentResponse2\x90\x05\n\x03\x41pi\x12\x31\n\x08\x43lassify\x12\x10.ClassifyRequest\x1a\x11.ClassifyResponse\"\x00\x12.\n\x07Predict\x12\x0f.PredictRequest\x1a\x10.PredictResponse\"\x00\x12L\n\x11RefreshClassifier\x12\x19.RefreshClassifierRequest\x1a\x1a.RefreshClassifierResponse\"\x00\x12I\n\x10RefreshPredictor\x12\x18.RefreshPredictorRequest\x1a\x19.RefreshPredictorResponse\"\x00\x12I\n\x10RefreshInstances\x12\x18.RefreshInstancesRequest\x1a\x19.RefreshInstancesResponse\"\x00\x12R\n\x13WorkloadsCategories\x12\x1b.WorkloadsCategoriesRequest\x1a\x1c.WorkloadsCategoriesResponse\"\x00\x12v\n\x1fImportMetricsFromSwanExperiment\x12\'.ImportMetricsFromSwanExperimentRequest\x1a(.ImportMetricsFromSwanExperimentResponse\"\x00\x12v\n\x1fImportSamplesFromSwanExperiment\x12\'.ImportSamplesFromSwanExperimentRequest\x1a(.ImportSamplesFromSwanExperimentResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -139,6 +139,254 @@ _PREDICTREQUIREMENTS = _descriptor.Descriptor(
 )
 
 
+_PREDICTFLAVOR = _descriptor.Descriptor(
+  name='PredictFlavor',
+  full_name='PredictFlavor',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='disk', full_name='PredictFlavor.disk', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ram', full_name='PredictFlavor.ram', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='vcpus', full_name='PredictFlavor.vcpus', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='PredictFlavor.name', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=204,
+  serialized_end=275,
+)
+
+
+_PREDICTHOSTAGGREGATECPU = _descriptor.Descriptor(
+  name='PredictHostAggregateCPU',
+  full_name='PredictHostAggregateCPU',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='performance', full_name='PredictHostAggregateCPU.performance', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='threads', full_name='PredictHostAggregateCPU.threads', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=277,
+  serialized_end=340,
+)
+
+
+_PREDICTHOSTAGGREGATEDISK = _descriptor.Descriptor(
+  name='PredictHostAggregateDisk',
+  full_name='PredictHostAggregateDisk',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='iops', full_name='PredictHostAggregateDisk.iops', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='size', full_name='PredictHostAggregateDisk.size', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=342,
+  serialized_end=396,
+)
+
+
+_PREDICTHOSTAGGREGATERAM = _descriptor.Descriptor(
+  name='PredictHostAggregateRAM',
+  full_name='PredictHostAggregateRAM',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bandwidth', full_name='PredictHostAggregateRAM.bandwidth', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='size', full_name='PredictHostAggregateRAM.size', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=398,
+  serialized_end=456,
+)
+
+
+_PREDICTHOSTAGGREGATE = _descriptor.Descriptor(
+  name='PredictHostAggregate',
+  full_name='PredictHostAggregate',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='cpu', full_name='PredictHostAggregate.cpu', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='disk', full_name='PredictHostAggregate.disk', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ram', full_name='PredictHostAggregate.ram', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=459,
+  serialized_end=600,
+)
+
+
+_PREDICTREQUEST_PARAMETERSENTRY = _descriptor.Descriptor(
+  name='ParametersEntry',
+  full_name='PredictRequest.ParametersEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='PredictRequest.ParametersEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='PredictRequest.ParametersEntry.value', index=1,
+      number=2, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=758,
+  serialized_end=807,
+)
+
 _PREDICTREQUEST = _descriptor.Descriptor(
   name='PredictRequest',
   full_name='PredictRequest',
@@ -162,20 +410,20 @@ _PREDICTREQUEST = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='parameters', full_name='PredictRequest.parameters', index=2,
-      number=3, type=9, cpp_type=9, label=3,
+      number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='host_aggregate', full_name='PredictRequest.host_aggregate', index=3,
+      name='configuration_id', full_name='PredictRequest.configuration_id', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='allocation', full_name='PredictRequest.allocation', index=4,
+      name='allocation_mode', full_name='PredictRequest.allocation_mode', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -184,7 +432,7 @@ _PREDICTREQUEST = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[],
+  nested_types=[_PREDICTREQUEST_PARAMETERSENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -193,8 +441,8 @@ _PREDICTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=204,
-  serialized_end=317,
+  serialized_start=603,
+  serialized_end=807,
 )
 
 
@@ -212,6 +460,20 @@ _PREDICTRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='flavors', full_name='PredictResponse.flavors', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='host_aggregates', full_name='PredictResponse.host_aggregates', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -224,8 +486,8 @@ _PREDICTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=319,
-  serialized_end=380,
+  serialized_start=810,
+  serialized_end=952,
 )
 
 
@@ -248,8 +510,8 @@ _REFRESHCLASSIFIERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=382,
-  serialized_end=408,
+  serialized_start=954,
+  serialized_end=980,
 )
 
 
@@ -272,8 +534,8 @@ _REFRESHCLASSIFIERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=410,
-  serialized_end=437,
+  serialized_start=982,
+  serialized_end=1009,
 )
 
 
@@ -296,8 +558,8 @@ _REFRESHPREDICTORREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=439,
-  serialized_end=464,
+  serialized_start=1011,
+  serialized_end=1036,
 )
 
 
@@ -320,8 +582,8 @@ _REFRESHPREDICTORRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=466,
-  serialized_end=492,
+  serialized_start=1038,
+  serialized_end=1064,
 )
 
 
@@ -344,8 +606,8 @@ _REFRESHINSTANCESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=494,
-  serialized_end=519,
+  serialized_start=1066,
+  serialized_end=1091,
 )
 
 
@@ -368,8 +630,8 @@ _REFRESHINSTANCESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=521,
-  serialized_end=547,
+  serialized_start=1093,
+  serialized_end=1119,
 )
 
 
@@ -406,8 +668,8 @@ _WORKLOADCATEGORY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=549,
-  serialized_end=601,
+  serialized_start=1121,
+  serialized_end=1173,
 )
 
 
@@ -430,8 +692,8 @@ _WORKLOADSCATEGORIESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=603,
-  serialized_end=631,
+  serialized_start=1175,
+  serialized_end=1203,
 )
 
 
@@ -461,8 +723,8 @@ _WORKLOADSCATEGORIESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=633,
-  serialized_end=711,
+  serialized_start=1205,
+  serialized_end=1283,
 )
 
 
@@ -492,8 +754,8 @@ _IMPORTMETRICSFROMSWANEXPERIMENTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=713,
-  serialized_end=776,
+  serialized_start=1285,
+  serialized_end=1348,
 )
 
 
@@ -516,8 +778,8 @@ _IMPORTMETRICSFROMSWANEXPERIMENTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=778,
-  serialized_end=819,
+  serialized_start=1350,
+  serialized_end=1391,
 )
 
 
@@ -547,8 +809,8 @@ _IMPORTSAMPLESFROMSWANEXPERIMENTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=821,
-  serialized_end=884,
+  serialized_start=1393,
+  serialized_end=1456,
 )
 
 
@@ -571,15 +833,27 @@ _IMPORTSAMPLESFROMSWANEXPERIMENTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=886,
-  serialized_end=927,
+  serialized_start=1458,
+  serialized_end=1499,
 )
 
+_PREDICTHOSTAGGREGATE.fields_by_name['cpu'].message_type = _PREDICTHOSTAGGREGATECPU
+_PREDICTHOSTAGGREGATE.fields_by_name['disk'].message_type = _PREDICTHOSTAGGREGATEDISK
+_PREDICTHOSTAGGREGATE.fields_by_name['ram'].message_type = _PREDICTHOSTAGGREGATERAM
+_PREDICTREQUEST_PARAMETERSENTRY.containing_type = _PREDICTREQUEST
+_PREDICTREQUEST.fields_by_name['parameters'].message_type = _PREDICTREQUEST_PARAMETERSENTRY
 _PREDICTRESPONSE.fields_by_name['requirements'].message_type = _PREDICTREQUIREMENTS
+_PREDICTRESPONSE.fields_by_name['flavors'].message_type = _PREDICTFLAVOR
+_PREDICTRESPONSE.fields_by_name['host_aggregates'].message_type = _PREDICTHOSTAGGREGATE
 _WORKLOADSCATEGORIESRESPONSE.fields_by_name['workloads_categories'].message_type = _WORKLOADCATEGORY
 DESCRIPTOR.message_types_by_name['ClassifyRequest'] = _CLASSIFYREQUEST
 DESCRIPTOR.message_types_by_name['ClassifyResponse'] = _CLASSIFYRESPONSE
 DESCRIPTOR.message_types_by_name['PredictRequirements'] = _PREDICTREQUIREMENTS
+DESCRIPTOR.message_types_by_name['PredictFlavor'] = _PREDICTFLAVOR
+DESCRIPTOR.message_types_by_name['PredictHostAggregateCPU'] = _PREDICTHOSTAGGREGATECPU
+DESCRIPTOR.message_types_by_name['PredictHostAggregateDisk'] = _PREDICTHOSTAGGREGATEDISK
+DESCRIPTOR.message_types_by_name['PredictHostAggregateRAM'] = _PREDICTHOSTAGGREGATERAM
+DESCRIPTOR.message_types_by_name['PredictHostAggregate'] = _PREDICTHOSTAGGREGATE
 DESCRIPTOR.message_types_by_name['PredictRequest'] = _PREDICTREQUEST
 DESCRIPTOR.message_types_by_name['PredictResponse'] = _PREDICTRESPONSE
 DESCRIPTOR.message_types_by_name['RefreshClassifierRequest'] = _REFRESHCLASSIFIERREQUEST
@@ -618,12 +892,55 @@ PredictRequirements = _reflection.GeneratedProtocolMessageType('PredictRequireme
   ))
 _sym_db.RegisterMessage(PredictRequirements)
 
+PredictFlavor = _reflection.GeneratedProtocolMessageType('PredictFlavor', (_message.Message,), dict(
+  DESCRIPTOR = _PREDICTFLAVOR,
+  __module__ = 'api_pb2'
+  # @@protoc_insertion_point(class_scope:PredictFlavor)
+  ))
+_sym_db.RegisterMessage(PredictFlavor)
+
+PredictHostAggregateCPU = _reflection.GeneratedProtocolMessageType('PredictHostAggregateCPU', (_message.Message,), dict(
+  DESCRIPTOR = _PREDICTHOSTAGGREGATECPU,
+  __module__ = 'api_pb2'
+  # @@protoc_insertion_point(class_scope:PredictHostAggregateCPU)
+  ))
+_sym_db.RegisterMessage(PredictHostAggregateCPU)
+
+PredictHostAggregateDisk = _reflection.GeneratedProtocolMessageType('PredictHostAggregateDisk', (_message.Message,), dict(
+  DESCRIPTOR = _PREDICTHOSTAGGREGATEDISK,
+  __module__ = 'api_pb2'
+  # @@protoc_insertion_point(class_scope:PredictHostAggregateDisk)
+  ))
+_sym_db.RegisterMessage(PredictHostAggregateDisk)
+
+PredictHostAggregateRAM = _reflection.GeneratedProtocolMessageType('PredictHostAggregateRAM', (_message.Message,), dict(
+  DESCRIPTOR = _PREDICTHOSTAGGREGATERAM,
+  __module__ = 'api_pb2'
+  # @@protoc_insertion_point(class_scope:PredictHostAggregateRAM)
+  ))
+_sym_db.RegisterMessage(PredictHostAggregateRAM)
+
+PredictHostAggregate = _reflection.GeneratedProtocolMessageType('PredictHostAggregate', (_message.Message,), dict(
+  DESCRIPTOR = _PREDICTHOSTAGGREGATE,
+  __module__ = 'api_pb2'
+  # @@protoc_insertion_point(class_scope:PredictHostAggregate)
+  ))
+_sym_db.RegisterMessage(PredictHostAggregate)
+
 PredictRequest = _reflection.GeneratedProtocolMessageType('PredictRequest', (_message.Message,), dict(
+
+  ParametersEntry = _reflection.GeneratedProtocolMessageType('ParametersEntry', (_message.Message,), dict(
+    DESCRIPTOR = _PREDICTREQUEST_PARAMETERSENTRY,
+    __module__ = 'api_pb2'
+    # @@protoc_insertion_point(class_scope:PredictRequest.ParametersEntry)
+    ))
+  ,
   DESCRIPTOR = _PREDICTREQUEST,
   __module__ = 'api_pb2'
   # @@protoc_insertion_point(class_scope:PredictRequest)
   ))
 _sym_db.RegisterMessage(PredictRequest)
+_sym_db.RegisterMessage(PredictRequest.ParametersEntry)
 
 PredictResponse = _reflection.GeneratedProtocolMessageType('PredictResponse', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTRESPONSE,
@@ -724,6 +1041,7 @@ ImportSamplesFromSwanExperimentResponse = _reflection.GeneratedProtocolMessageTy
 _sym_db.RegisterMessage(ImportSamplesFromSwanExperimentResponse)
 
 
+_PREDICTREQUEST_PARAMETERSENTRY._options = None
 
 _API = _descriptor.ServiceDescriptor(
   name='Api',
@@ -731,8 +1049,8 @@ _API = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=930,
-  serialized_end=1586,
+  serialized_start=1502,
+  serialized_end=2158,
   methods=[
   _descriptor.MethodDescriptor(
     name='Classify',

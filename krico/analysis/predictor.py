@@ -114,7 +114,7 @@ class _Predictor(object):
 
 
 def predict(category, image, parameters,
-            configuration_id=None, allocation_mode=None):
+            configuration_id="", allocation_mode=""):
     """Predict requirements for specific workload.
 
     Keyword arguments:
@@ -185,7 +185,7 @@ def predict(category, image, parameters,
     predictions = []
 
     for aggregate in aggregates:
-        if allocation_mode is None:
+        if allocation_mode == "":
             prediction = \
                 prepare_prediction_for_host_aggregate(
                     dict(aggregate),

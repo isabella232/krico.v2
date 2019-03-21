@@ -84,7 +84,7 @@ class HostAggregate(Model):
     disk = columns.Map(columns.Text(), columns.Integer())
 
     @staticmethod
-    def get_host_aggregates(configuration_id=None):
+    def get_host_aggregates(configuration_id=""):
         """Return host aggregates from database.
 
         When configuration id is provides, returns host aggregates for specific
@@ -98,6 +98,10 @@ class HostAggregate(Model):
         Returns:
         --------
         host_aggregates: list of HostAggregate objects."""
+
+        if not isinstance(configuration_id, str):
+            raise TypeError(
+                "Parameter configuration_id should be type of string!")
 
         if configuration_id:
             return HostAggregate.objects.filter(
