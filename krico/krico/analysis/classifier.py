@@ -124,7 +124,7 @@ def classify(instance_id):
 
     configuration_id = samples.first().configuration_id
 
-    classifier = _load_classifier(configuration_id)
+    classifier = _get_classifier(configuration_id)
 
     metrics = []
 
@@ -158,7 +158,7 @@ def refresh():
         for category in core.CATEGORIES:
 
             if _enough_samples(category, host_aggregate.configuration_id):
-                _create_and_save_classifier(
+                _create_classifier(
                     category, host_aggregate.configuration_id)
 
             else:
@@ -166,7 +166,7 @@ def refresh():
                             'in "{}" host aggregate.')
 
 
-def _create_and_save_classifier(category, configuration_id):
+def _create_classifier(category, configuration_id):
 
     learning_set = ClassifierInstance.\
         get_classifier_learning_set(category, configuration_id)
@@ -195,17 +195,19 @@ def _create_and_save_classifier(category, configuration_id):
 
     os.remove(h5fd_file_name)
 
+    return classifier
 
-def _load_classifier(configuration_id):
+
+def _get_classifier(configuration_id):
     classifier_query = ClassifierNetwork.objects.filter(
         configuration_id=configuration_id
-    ).allow_filtering().first()
+    ).get()
 
     if not classifier_query:
         classifier_query = ClassifierNetwork.objects.filter(
             configuration_id=core.configuration
             ['classifier']['default_configuration_id']
-        ).allow_filtering().first()
+        ).get()
 
     if not classifier_query:
         raise(NotFoundError(
