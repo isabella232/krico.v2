@@ -33,7 +33,8 @@ class TestEnoughSamples(object):
 class TestPredictor(object):
 
     def test_if_model_is_created_after_object_initialization(self):
-        assert krico.analysis.predictor._Predictor(category, image).model
+        assert hasattr(krico.analysis.predictor.
+                       _Predictor(category, image), 'model')
 
     def test_if_model_is_compiled_after_object_initialization(self):
         assert krico.analysis.predictor._Predictor(category,
