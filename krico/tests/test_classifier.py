@@ -1,6 +1,10 @@
+import os
+
 import mock
 
 import krico.analysis.classifier
+
+configuration_id = 'configuration_id'
 
 
 class TestEnoughSamples(object):
@@ -22,11 +26,48 @@ class TestEnoughSamples(object):
 
 class TestClassifier(object):
 
-    def test_if_model_is_correct(self):
-        classifier = krico.analysis.classifier._Classifier('configuration_id')
+    def test_if_model_is_created_after_object_initialization(self):
+        assert hasattr(krico.analysis.classifier.
+                       _Classifier(configuration_id), 'model')
 
-        assert classifier.model
-        assert classifier.model.built is True
-        assert classifier.configuration_id is "configuration_id"
-        assert hasattr(classifier, 'x_maxima')
-        assert len(classifier.model.layers) == 3
+    def test_if_model_is_compiled_after_object_initialization(self):
+        assert krico.analysis.classifier.\
+                   _Classifier(configuration_id).model.built is True
+
+    def test_if_classifier_have_configuration_id(self):
+        assert krico.analysis.classifier.\
+                   _Classifier(configuration_id).\
+                   configuration_id == configuration_id
+
+    def test_if_classifier_have_x_maxima(self):
+        assert hasattr(krico.analysis.classifier.
+                       _Classifier(configuration_id), 'x_maxima')
+
+
+class TestGetClassifier(object):
+
+    @mock.patch('krico.analysis.classifier.ClassifierNetwork')
+    def test_if_return_specific_network(self, mock_classifier_network):
+
+        classifier_row = krico.analysis.classifier.ClassifierNetwork
+        classifier_row.configuration_id = configuration_id
+
+        classifier = krico.analysis.classifier._Classifier(configuration_id)
+        h5fd_file_name = 'model_{}.h5'.format(configuration_id)
+
+        classifier.model.save(h5fd_file_name)
+
+        with open(h5fd_file_name, mode='rb') as f:
+            classifier_row.model = f.read()
+            f.close()
+        os.remove(h5fd_file_name)
+
+        mock_classifier_network.objects.filter.return_value.get.return_value =\
+            classifier_row
+
+        test_classifier = \
+            krico.analysis.classifier._get_classifier(configuration_id)
+
+        assert test_classifier.model.metrics_names ==\
+            classifier.model.metrics_names
+        assert test_classifier.configuration_id == classifier.configuration_id
