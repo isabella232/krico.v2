@@ -18,22 +18,14 @@
 
 ## KRICO Experiment
 
-This experiment consists of three sub experiments:
+This experiment uses KRICO (Komponent Rekomendacji dla Inteligentnych Chmur Obliczeniowych).
+
+It consists of three sub experiments:
 - Metric Gathering which provides data for KRICO neural network.
-- Classification Experiment which runs workload :w
-
-
-This experiment uses KRICO (Komponent Rekomendacji dla Inteligentnych Chmur Obliczeniowych)
-
-
+- Classification Experiment which runs workloads, gather metrics from them and in the end do classification.
+- Prediction Experiment which for passed parameters do prediction.
 
 More information about KRICO [krico.gda.pl](http://krico.gda.pl/)
-
-Metric Gathering Experiment runs workloads, gather metrics and learn KRICO neural networks.
-
-Classification Experiment runs workloads, gather monitor samples and do KRICO classification.
-
-Prediction Experiment for passed parameters do KRICO prediction.
 
 ## Architecture
 
