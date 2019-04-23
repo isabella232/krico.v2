@@ -29,11 +29,9 @@ More information about KRICO [krico.gda.pl](http://krico.gda.pl/)
 
 ## Architecture
 
-### ![KRICO architecture](docs/images/krico-architecture.png)
+### ![KRICO architecture](docs/images/krico-architecture.png)g
 
 ## Table of Contents
-1. [Theory](docs/theory.md)
-1. [Prerequisites](docs/prerequisites.md)
 1. [Installation](docs/installation.md)
 1. [Run the Experiment ](docs/run_experiment.md)
 1. [Tune Mutilate & Memcached](docs/tuning.md)
