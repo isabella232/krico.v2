@@ -23,29 +23,42 @@ for workload prediction and classification.
 
 It consists of three sub experiments:
 - Metric Gathering which provides data for KRICO neural network.
-- Classification Experiment which runs workloads, gather metrics from them and in the end do classification.
+- Classification Experiment which runs workloads, gather metrics from them and in the end do classification of these workloads.
 - Prediction Experiment which for passed parameters do prediction.
 
-More theory about KRICO [krico.gda.pl](http://krico.gda.pl/)
+More information about KRICO (in Polish) [krico.gda.pl](http://krico.gda.pl/)
 
 ---
 ## Required software and services
 
-To run this experiment you'll need few services:
+To run the experiment you need following services:
 
 - [OpenStack Rocky](https://www.openstack.org/software/rocky/)
-- [Snap Telemetry](https://github.com/intelsdi-x/snap) installed in OpenStack hypervisor node
+- [Snap Telemetry](https://github.com/intelsdi-x/snap) installed on OpenStack hypervisor node
 - [Cassandra Database](http://cassandra.apache.org/)
 - KRICO Service
 
 ### KRICO installation
 ##### Requirements:
 * Python 2.7
-* Pipenv
+* [Pipenv](https://github.com/pypa/pipenv)
 
 ##### Installation and running
-Edit existing config file (```experiments/krico/config.yml```).
-Add your Database and Api information.
+Edit existing config file (```experiments/krico/config.yml```), put your information about database and api.
+
+```bash
+database:
+    host: your host
+    port: your port
+    keyspace: krico
+    replication_factor: 1
+
+api:
+    host: your ip
+    port: 5000
+```
+
+Go to experiment folder. Install virtual environment and run KRICO service.
 
 ```bash
 cd experiments/krico/
@@ -58,9 +71,9 @@ pipenv run python main.py -c config.yml
 
 ##### Metric gathering
 ```bash
-sudo krico-metric-gathering
+krico-metric-gathering
 ```
-Flags to set:
+Parameters available:
 
 ```
 -aggressor_address string                                
@@ -114,9 +127,9 @@ Flags to set:
 
 ##### Classification
 ```bash
-sudo krico-classification
+krico-classification
 ```
-Flags to set:
+Parameters available:
 
 ```
 -aggressor_address string                                
@@ -173,9 +186,9 @@ Flags to set:
 
 ##### Prediction
 ```bash
-sudo krico-prediction
+krico-prediction
 ```
-Flags to set:
+Parameters available:
 
 ```
 -experiment_load_duration duration           
