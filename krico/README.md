@@ -155,3 +155,7 @@ cd experiments/krico/
 pipenv install
 pipenv run python main.py -c config.yml
 ```
+---
+Project co-financed from the resources of the European Regional Development Fulfillment as part of the Operational Program Innovative Economy for 2007-2013, Priority 1: "Research and development of modern technologies", Measure 1.5: System projects of the National Center for Research and Development. 
+
+![IG LOGO](images/ig-logo.png) ![EU LOGO](images/eu-logo.png)
