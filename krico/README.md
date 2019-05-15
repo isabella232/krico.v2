@@ -10,13 +10,13 @@ More information about KRICO (in Polish) [krico.gda.pl](http://krico.gda.pl/)
 Classify workload.
 
 Request message:
-```
+```protobuf
 message ClassifyRequest {
     string instance_id = 1;
 }
 ```
 Response message:
-```
+```protobuf
 message ClassifyResponse {
     string classified_as = 1;
 }
@@ -26,7 +26,7 @@ message ClassifyResponse {
 Predict requirements for running workload on OpenStack cluster. 
 
 Request message:
-```
+```protobuf
 message PredictRequest {
     string category = 1;
     string image = 2;
@@ -37,7 +37,7 @@ message PredictRequest {
 ```
 
 Response message:
-```
+```protobuf
 message PredictResponse {
     repeated PredictRequirements requirements = 1;
     repeated PredictFlavor flavors = 2;
@@ -46,7 +46,7 @@ message PredictResponse {
 ```
 
 Additional messages:
-```
+```protobuf
 message PredictRequirements {
     double cpu_threads = 1;
     double disk_iops = 2;
@@ -94,14 +94,14 @@ Refreshes all predictor neural networks with data from db.
 Returns all workload categories.
 
 Response message:
-```
+```protobuf
 message WorkloadsCategoriesResponse {
     repeated WorkloadCategory workloads_categories = 1;
 }
 ```
 
 Additional messages:
-```
+```protobuf
 message WorkloadCategory{
     string name = 1;
     repeated string parameters = 2;
@@ -112,7 +112,7 @@ message WorkloadCategory{
 Imports all metrics from swan experiment to KRICO db.
 
 Request message:
-```
+```protobuf
 message ImportMetricsFromSwanExperimentRequest {
     string experiment_id=1;
 }
@@ -122,7 +122,7 @@ message ImportMetricsFromSwanExperimentRequest {
 Imports monitor samples from swan experiment to KRICO db.
 
 Request message:
-```
+```protobuf
 message ImportSamplesFromSwanExperimentRequest {
     string experiment_id=1;
 }
@@ -136,7 +136,7 @@ message ImportSamplesFromSwanExperimentRequest {
 ##### Installation and running
 Edit existing config file (```experiments/krico/config.yml```), put your information about database and api.
 
-```bash
+```yaml
 database:
     host: your host
     port: your port
