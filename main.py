@@ -21,9 +21,9 @@ and start service.
 
 import argparse
 
-from krico import core
-from krico.api import service
-from krico.core import logger
+import core
+from api import service
+from core import logger
 
 
 def main():

@@ -5,9 +5,9 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 from uuid import uuid4
 
-from krico import core
-from krico.core.exception import NotEnoughMetricsError, NotFoundError
-from krico.database import\
+import core
+from core import NotEnoughMetricsError, NotFoundError
+from database import\
     HostAggregate, ClassifierInstance, Host, Flavor, PredictorInstance, \
     Sample, Image
 

@@ -12,18 +12,16 @@ import grpc
 
 import logging
 
-from krico.analysis import classifier
-from krico.analysis import predictor
+from analysis import classifier, predictor
 
-from krico.api.proto import api_pb2 as api_messages
-from krico.api.proto import api_pb2_grpc as api_service
+from api.proto import api_pb2_grpc as api_service, api_pb2 as api_messages
 
-from krico.database import connect as connect_to_db
-from krico.database.importer import import_metrics_from_swan_experiment,\
+from database import connect as connect_to_db
+from database.importer import import_metrics_from_swan_experiment,\
     import_samples_from_swan_experiment
 
-from krico import core
-from krico.core.exception import Error
+import core
+from core import Error
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
@@ -64,8 +62,8 @@ class Api(api_service.ApiServicer):
                 api_messages.PredictRequirements(
                     cpu_threads=prediction['requirements']['cpu_threads'],
                     disk_iops=prediction['requirements']['disk_iops'],
-                    network_bandwidth=prediction['requirements']
-                    ['network_bandwidth'],
+                    network_bandwidth=
+                    prediction['requirements']['network_bandwidth'],
                     ram_size=prediction['requirements']['ram_size']))
 
             flavors.append(

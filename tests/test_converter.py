@@ -1,9 +1,9 @@
 import pytest
 
-from krico.analysis.converter import\
+from analysis.converter import\
     prepare_prediction_for_host_aggregate, prepare_mean_sample, _filter_peaks
 
-from krico.core.exception import NotEnoughResourcesError
+from core import NotEnoughResourcesError
 
 
 class TestPreparePredictionForHostAggregate(object):

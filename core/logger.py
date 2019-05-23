@@ -2,7 +2,7 @@ import logging
 import logging.config
 import sys
 
-from krico import core
+import core
 
 
 def init():

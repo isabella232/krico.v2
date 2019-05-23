@@ -6,11 +6,11 @@ import keras
 import numpy
 import logging
 
-from krico.analysis.converter import prepare_mean_sample
+from analysis.converter import prepare_mean_sample
 
-from krico import core
-from krico.core.exception import NotFoundError
-from krico.database \
+import core
+from core import NotFoundError
+from database \
     import ClassifierInstance, Sample, ClassifierNetwork, HostAggregate
 
 log = logging.getLogger(__name__)
