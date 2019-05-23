@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-import krico.database
+import database
 
 
 class TestFillDatabase(object):
@@ -13,13 +13,13 @@ class TestFillDatabase(object):
         predictor_data_path = \
             '{}/test_predictor_data.json'.\
             format(os.path.dirname(os.path.abspath(__file__)))
-        krico.database.fill(classifier_data_path, predictor_data_path)
+        database.fill(classifier_data_path, predictor_data_path)
 
         with open(classifier_data_path) as f:
             data = json.load(f)
 
         for expected in data:
-            db_object = krico.database.ClassifierInstance.filter(
+            db_object = database.ClassifierInstance.filter(
                 id=uuid.UUID(expected['id'])).allow_filtering().first()
             assert db_object.category == expected['category']
             assert db_object.name == expected['name']
@@ -45,7 +45,7 @@ class TestFillDatabase(object):
             assert db_object.instance_id == expected['instance_id']
             assert db_object.resource_usage == expected['load_measured']
 
-            db_object = krico.database.HostAggregate.filter(
+            db_object = database.HostAggregate.filter(
                 name=expected['host_aggregate'][
                     'name']).allow_filtering().first()
             assert db_object.disk == expected['host_aggregate']['disk']
@@ -59,7 +59,7 @@ class TestFillDatabase(object):
             data = json.load(f)
 
         for expected in data:
-            db_object = krico.database.PredictorInstance.filter(
+            db_object = database.PredictorInstance.filter(
                 id=uuid.UUID(expected['id'])).allow_filtering().first()
             assert db_object.instance_id == expected['instance_id']
             assert db_object.image == expected['image']
@@ -67,9 +67,9 @@ class TestFillDatabase(object):
             assert db_object.requirements == expected['requirements']
             assert db_object.parameters == expected['parameters']
 
-            db_object = krico.database.Image.filter(
+            db_object = database.Image.filter(
                 image=expected['image']).allow_filtering().first()
             assert db_object.image == expected['image']
             assert db_object.category == expected['category']
 
-        krico.database.delete_database()
+        database.delete_database()

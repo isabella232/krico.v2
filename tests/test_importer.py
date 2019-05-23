@@ -1,9 +1,9 @@
 import mock
 import pytest
 
-from krico import core
-from krico.core.exception import NotEnoughMetricsError, NotFoundError
-from krico.database import importer
+import core
+from core import NotEnoughMetricsError, NotFoundError
+from database import importer
 
 experiment_id = "experiment_id"
 
@@ -14,7 +14,7 @@ class TestImportMetricsFromSwanExperiment(object):
     def test_if_throw_exception_when_cannot_gather_basic_information(
             self, mock_metrics):
         mock_metrics.get_by_experiment_id.return_value.count.return_value =\
-            len(core.METRICS*10)
+            len(core.METRICS * 10)
 
         mock_metrics.get_by_experiment_id.return_value.\
             first.return_value.tags = {}
@@ -156,7 +156,7 @@ class TestImportMonitorSamplesFromSwanExperiment(object):
     def test_if_throw_exception_when_cannot_gather_basic_information(
             self, mock_metrics):
         mock_metrics.get_by_experiment_id.return_value.count.return_value =\
-            len(core.METRICS*10)
+            len(core.METRICS * 10)
 
         mock_metrics.get_by_experiment_id.return_value.\
             first.return_value.tags = {}

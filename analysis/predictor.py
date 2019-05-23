@@ -7,12 +7,12 @@ import keras
 import numpy
 import logging
 
-from krico.analysis.converter import prepare_prediction_for_host_aggregate
+from analysis.converter import prepare_prediction_for_host_aggregate
 
-from krico import core
-from krico.core.exception import NotEnoughResourcesError, NotFoundError
+import core
+from core import NotEnoughResourcesError, NotFoundError
 
-from krico.database \
+from database \
     import PredictorInstance, PredictorNetwork, HostAggregate, Image
 
 

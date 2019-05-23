@@ -14,9 +14,9 @@ import json
 import logging
 import uuid
 
-from krico import core
+import core
 
-from krico.core.exception import Error, DatabaseConnectionError
+from core import Error, DatabaseConnectionError
 
 log = logging.getLogger(__name__)
 

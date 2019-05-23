@@ -3,8 +3,8 @@ import math
 import numpy
 import logging
 
-from krico import core
-from krico.core.exception import NotEnoughResourcesError
+import core
+from core import NotEnoughResourcesError
 
 log = logging.getLogger(__name__)
 
