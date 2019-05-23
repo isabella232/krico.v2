@@ -64,8 +64,8 @@ class Api(api_service.ApiServicer):
                 api_messages.PredictRequirements(
                     cpu_threads=prediction['requirements']['cpu_threads'],
                     disk_iops=prediction['requirements']['disk_iops'],
-                    network_bandwidth=prediction['requirements']
-                    ['network_bandwidth'],
+                    network_bandwidth=
+                    prediction['requirements']['network_bandwidth'],
                     ram_size=prediction['requirements']['ram_size']))
 
             flavors.append(
